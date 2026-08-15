@@ -1,0 +1,172 @@
+# Unreal Editor 작업 절차
+
+## 1. C++ 변경 후 빌드
+
+### 프로젝트 파일 재생성이 필요하지 않은 경우
+
+- 기존 `.h/.cpp` 내용만 수정
+- 새 UPROPERTY/UFUNCTION 추가
+- 기존 모듈 안에 파일 추가 후 IDE가 이미 인식
+
+이 경우 `Astra_SoulLink.sln`을 열고 `Development Editor | Win64`로 빌드합니다.
+
+### 프로젝트 파일 재생성이 필요한 경우
+
+- `.sln`이 없거나 손상됨
+- 새 모듈/플러그인 추가
+- `Build.cs`, `Target.cs`, 모듈 의존성 변경
+- 새 C++ 파일이 IDE에 나타나지 않음
+
+`Astra_SoulLink.uproject` 우클릭 → **Generate Visual Studio project files** 후 솔루션을 빌드합니다.
+
+구조 변경 후에는 Live Coding만으로 확인하지 말고 Editor를 닫은 상태에서 전체 Editor Target을 빌드합니다.
+
+## 2. Blueprint Context 바인딩
+
+STC/STT가 `PlayerContext` 또는 `EntityContext`를 읽을 때 Blueprint 변수만 만들면 값이 자동으로 들어오지 않습니다.
+
+```text
+StateTree Asset
+→ 해당 Condition/Task 선택
+→ Details > Binding
+→ Actor.EntityContext 또는 Actor.PlayerContext 연결
+→ Compile
+→ 런타임 Debug Object에서 값 확인
+```
+
+`None` 오류가 나면 Cast를 추가하기 전에 다음을 확인합니다.
+
+1. Character에서 Context가 실제 생성·초기화되었는가
+2. StateTree 시작이 Context 초기화보다 빠르지 않은가
+3. Condition/Task의 인스턴스 바인딩이 현재 StateTree에 저장되었는가
+4. 부모 Task/Condition 변수와 자식의 동일 이름 변수가 중복되지 않았는가
+
+## 3. STC_CanFire
+
+권장 전체 순서:
+
+```text
+ReceiveTestCondition
+→ IsValid(EntityContext)?
+→ IsValid(EntityContext.WeaponComp)?
+→ IsValid(EntityContext.StatusModel 또는 ASC)?
+→ Dead/Stunned/Traversal 차단 확인
+→ UpperState == Ready 확인
+→ BaseState == Idle OR Walk 확인
+→ WeaponComp.CanFireWeapon
+→ 모든 결과 AND
+→ Return true
+
+유효성 실패 또는 조건 실패
+→ Return false
+```
+
+Sprint 중 Fire 입력은 STC_CanFire에서 바로 허용하지 않고, 먼저 CancelSprint/Walk 전이와 Draw/Ready 흐름을 거친 뒤 Fire로 진입합니다.
+
+## 4. STT_Fire
+
+```text
+Event EnterState
+→ IsValid(EntityContext.StateEventBus)
+→ Publish Simple
+   EventTag = Event.State.Upper.FireEntered
+   Source = APlayer
+→ IsValid(EntityContext.StateMediator)
+→ Try Activate Ability by Tag
+   AbilityTag = Ability.Weapon.Fire
+→ Finish Task
+   Succeeded = ReturnValue
+```
+
+`Publish Simple`은 유지합니다. 이 이벤트가 없으면 Mediator가 Fire 진입을 알 수 없어 Sprint 취소 같은 상·하체 정책이 실행되지 않습니다.
+
+## 5. GA_WeaponBase 캐싱
+
+```text
+ResolveWeaponComponent
+→ Get Avatar Actor from Actor Info
+→ CurrentAvatar 저장
+→ CachedAvatar == CurrentAvatar AND IsValid(CachedWeaponComp)?
+   True  → 기존 CachedWeaponComp 반환, Succeeded = true
+   False → IsValid(CurrentAvatar)?
+           False → 반환 None, Succeeded = false
+           True  → Get Component by Class(WeaponComponent)
+                   → CachedAvatar = CurrentAvatar
+                   → CachedWeaponComp = 결과
+                   → IsValid 결과를 Succeeded로 반환
+```
+
+Ability가 활성화될 때마다 무조건 Find하지 않고, Avatar가 바뀌거나 캐시가 무효일 때만 다시 찾습니다.
+
+## 6. GA_WeaponFire 단발 흐름
+
+```text
+Event ActivateAbility
+→ ResolveWeaponComponent
+→ 실패: EndAbility(Cancelled = true)
+→ CanFireWeapon
+→ 실패: EndAbility(Cancelled = true)
+→ CommitAbility
+→ 실패: EndAbility(Cancelled = true)
+→ FireEquippedWeapon
+→ 성공 여부 처리
+→ EndAbility(Cancelled = false)
+
+Event CancelAbility
+→ 실행 중 Montage/Timer 정리
+→ Parent CancelAbility 또는 EndAbility(Cancelled = true)
+```
+
+## 7. Draw/Holster Montage
+
+### Draw
+
+```text
+STT_WeaponDrawing.EnterState
+→ WeaponComp.EnterDrawingCarryState
+→ WeaponComp.ExecuteDrawWeapon
+→ Montage Notify: Weapon_AttachToHand
+→ Montage 종료 Delegate
+→ 성공: FinishTask(true)
+→ 실패/중단: CancelDrawWeapon + FinishTask(false)
+```
+
+### Holster
+
+```text
+STT_WeaponHolstering.EnterState
+→ WeaponComp.EnterHolsteringCarryState
+→ WeaponComp.ExecuteHolsterWeapon
+→ Montage Notify: Weapon_AttachToHolster
+→ Montage 종료 Delegate
+→ FinishTask
+
+ExitState 중 진행 중이면
+→ CancelHolsterWeapon
+```
+
+## 8. Aim Offset
+
+```text
+Event Blueprint Update Animation
+→ IsValid(Character)
+→ BaseAimRotation
+→ ActorRotation
+→ Normalized Delta Rotator
+→ Break Rotator.Pitch
+→ Clamp(-70, 70)
+→ SelectFloat(Target = Clamp값 if AimActive else 0)
+→ FInterpTo(Current = AimPitch, Target, DeltaTime, AimInterpSpeed)
+→ Set AimPitch
+```
+
+AnimGraph:
+
+```text
+Pistol Idle Base Pose
+→ AO_Pistol(X = AimYaw, Y = AimPitch)
+→ UpperBody Slot
+→ Layered Blend Per Bone
+→ Control Rig / IK
+→ Output Pose
+```
