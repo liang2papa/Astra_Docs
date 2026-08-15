@@ -1,0 +1,213 @@
+# StateTree와 Gameplay Ability System
+
+## 1. 역할 분리
+
+StateTree와 GAS는 서로를 대체하지 않습니다.
+
+| 시스템 | 책임 |
+|---|---|
+| StateTree Condition | 전이 후보가 현재 가능한지 빠르게 검사 |
+| StateTree Task | 상태 진입·틱·종료에 따른 실행과 Ability 활성화 요청 |
+| EntityStateMediator | 상·하체 이벤트 라우팅, 상태 충돌 정책, Tag 기반 Ability 활성화 |
+| Gameplay Ability | 비용, 쿨다운, 차단, Commit, 실제 전투 행동, 취소·종료 |
+| ASC / GameplayTag | 공유 전투 상태와 Ability 수명 관리 |
+
+STC에서 모든 검사를 끝냈더라도 GA는 실행 시점에 탄약·사망·기절·비용 등 안전 검사를 다시 수행해야 합니다. 두 검사는 중복된 역할이 아니라 **전이 선택용 검사**와 **실행 권한 검사**입니다.
+
+## 2. StateTree 구성
+
+### Base StateTree
+
+에셋: `Content/Astra/Player/StateTree/BaseStateTree/ST_PlayerBaseState.uasset`
+
+전신 로코모션을 담당합니다.
+
+- Idle
+- Walk
+- Sprint
+- CancelSprint
+- JumpStart
+- Jumping
+- Falling
+- Evade
+- Hanging
+- HangingDrop
+- Mantle
+- Vault
+
+### Upper StateTree
+
+에셋: `Content/Astra/Player/StateTree/UpperStateTree/ST_UpperState.uasset`
+
+WeaponCarryState와 UpperAction을 하나의 트리에서 관리합니다. 무기를 들어야 공격할 수 있고, 상호작용·Sprint·Airborne·Traversal이 Carry와 Action에 동시에 영향을 주기 때문에 별도 트리 두 개로 나누지 않습니다.
+
+- Holstered
+- Drawing
+- Ready
+- Holstering
+- Fire
+- Aim
+- Reload
+
+현재 구현된 주요 에셋:
+
+- `Tasks/STT_WeaponHolstered`
+- `Tasks/STT_WeaponDrawing`
+- `Tasks/STT_WeaponReady`
+- `Tasks/STT_WeaponHolstering`
+- `Tasks/STT_Fire`
+- `Conditions/STC_CanDrawWeapon`
+- `Conditions/STC_CanFire`
+
+## 3. Condition과 Task 규칙
+
+### Condition이 하는 일
+
+- 필요한 Context와 Component 유효성 검사
+- 장착 무기 여부
+- 현재 Base/Upper 상태
+- 사망·기절·Traversal 등 차단 상태
+- 발사 가능 여부, 탄약 여부 같은 전이 전 조건
+
+### Condition이 하지 않는 일
+
+- Montage 재생
+- Socket 변경
+- 탄약 소비
+- Ability 취소
+- 다른 State 직접 변경
+- 입력 소비
+
+### Task가 하는 일
+
+- State 진입 사실을 EventBus에 게시
+- Domain Component 함수 호출
+- Mediator에 GameplayTag 기반 Ability 활성화 요청
+- 지연 작업이 끝날 때 `Finish Task`
+- ExitState에서 중단·복구 처리
+
+## 4. 무기 발사 전체 경로
+
+```mermaid
+sequenceDiagram
+    participant Input as Enhanced Input
+    participant Character as PlayerCharacter
+    participant Weapon as WeaponComponent
+    participant Upper as Upper StateTree
+    participant Task as STT_Fire
+    participant Mediator as StateMediator
+    participant ASC as Ability System
+    participant GA as GA_WeaponFire
+
+    Input->>Character: IA_Astra_Attack
+    Character->>Weapon: RequestWeaponDraw(Fire)
+    alt Holstered
+        Weapon->>Upper: Input/Draw Event
+        Upper->>Weapon: Drawing → Ready
+        Weapon->>Upper: Pending Fire 전달
+    end
+    Upper->>Upper: STC_CanFire
+    Upper->>Task: Fire 진입
+    Task->>Mediator: Publish FireEntered
+    Mediator->>Upper: 상태 이벤트 라우팅
+    Mediator->>ASC: TryActivateAbilityByTag(Ability.Weapon.Fire)
+    ASC->>GA: ActivateAbility
+    GA->>Weapon: FireEquippedWeapon
+    GA->>ASC: EndAbility
+```
+
+`STT_Fire`의 `Publish Simple`은 Ability를 켜는 함수가 아닙니다. 상체 Fire 진입 사실을 Mediator에 알려 Sprint 취소 같은 교차 상태 정책을 작동시키는 이벤트입니다. 그 다음 `Try Activate Ability by Tag`가 실제 GA를 활성화합니다.
+
+## 5. STT_Fire 기준 순서
+
+1. `Event EnterState`
+2. `EntityContext.StateEventBus` 유효성 확인
+3. `Publish Simple`
+   - EventTag: `Event.State.Upper.FireEntered`
+   - Source: `APlayer` 또는 Context Actor
+4. `EntityContext.StateMediator` 유효성 확인
+5. `Try Activate Ability by Tag`
+   - AbilityTag: `Ability.Weapon.Fire`
+6. 반환값을 `Finish Task.Succeeded`에 연결
+
+StateTree에서 `Actor.PlayerContext` 또는 `Actor.EntityContext` 바인딩을 반드시 지정합니다. Blueprint 변수에 값이 존재하는 것과 StateTree의 인스턴스 바인딩은 별개입니다.
+
+## 6. Ability Blueprint 계층
+
+현재 프로젝트는 반복 튜닝과 콘텐츠 연결을 위해 GA 구체 클래스를 Blueprint로 만듭니다.
+
+```text
+GA_AstraBase
+└─ GA_WeaponBase
+   ├─ GA_WeaponFire
+   ├─ GA_WeaponReload     (예정)
+   └─ GA_WeaponAim        (예정)
+```
+
+향후 계층:
+
+```text
+GA_AstraBase
+├─ GA_WeaponBase
+├─ GA_SoulLinkBase
+│  ├─ Possession
+│  ├─ DirectSkill
+│  ├─ Transform
+│  └─ Totem
+├─ GA_AstraActionBase
+└─ GA_CommonBase
+```
+
+`GA_WeaponBase`는 `CurrentAvatar`와 `WeaponComponent`를 활성화 시 해석하고 캐싱합니다. Ability Instance가 Avatar 교체 이후에도 재사용될 수 있으므로 캐시는 Avatar가 달라졌거나 Component가 무효할 때 갱신합니다.
+
+## 7. EndAbility와 CancelAbility
+
+- `EndAbility`: 정상 성공 또는 자체 종료 시 호출합니다.
+- `CancelAbility`: 피격, 사망, Sprint, Airborne, Traversal 등 외부 사유로 중단할 때 사용합니다.
+- 취소 경로에서도 Montage·타이머·예약 입력·GameplayTag를 정리한 뒤 Ability 수명을 끝냅니다.
+
+Ability가 즉시 한 발만 발사한다면 `Activate → Commit → Fire → EndAbility`가 기본 흐름입니다. 연사·충전·지속 조준은 Ability가 활성 상태로 남아 입력 해제 또는 취소를 기다립니다.
+
+## 8. GameplayTag 기준
+
+### 입력
+
+- `Input.Ability.Primary`
+- `Input.Ability.Aim`
+- `Input.Ability.Reload`
+
+### Ability
+
+- `Ability.Weapon.Fire`
+- `Ability.Weapon.Aim`
+- `Ability.Weapon.Reload`
+
+### 상태
+
+- `State.Dead`
+- `State.Stunned`
+- `State.Movement.Airborne`
+- `State.Movement.Sprinting`
+- `State.Movement.Traversal`
+- `State.Combat.Aiming`
+- `State.Combat.Attacking`
+- `State.Combat.Reloading`
+- `State.Weapon.Holstered`
+- `State.Weapon.Drawing`
+- `State.Weapon.Ready`
+- `State.Weapon.Holstering`
+- `State.Weapon.Blocked`
+
+### 상·하체 중재 이벤트
+
+- `Event.State.Locomotion.SprintEntered`
+- `Event.State.Locomotion.AirborneEntered`
+- `Event.State.Locomotion.TraversalEntered`
+- `Event.State.Upper.FireEntered`
+- `Event.State.Upper.AimEntered`
+- `Event.Command.Locomotion.CancelSprint`
+- `Event.Command.Locomotion.HitReaction`
+- `Event.Command.Locomotion.Death`
+- `Event.Command.Upper.CancelAction`
+- `Event.Command.Upper.ForceHolster`
+- `Event.Command.Upper.Disable`

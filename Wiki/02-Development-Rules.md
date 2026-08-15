@@ -1,0 +1,124 @@
+# 개발 규칙
+
+## 1. 최우선 원칙
+
+1. Unreal Engine 5.8 규칙이 Unity 레거시 규칙보다 우선합니다.
+2. 동일한 상태 판단을 Blueprint와 C++에 중복 구현하지 않습니다.
+3. 수치 하드코딩을 피하고 DataAsset 또는 명명된 멤버 변수로 노출합니다.
+4. 게임플레이 사실은 단일 소유자만 변경합니다.
+5. Context에는 참조만 넣고 판단·전이·실행 로직을 넣지 않습니다.
+6. Mediator는 이벤트와 정책을 라우팅하며 벡터 계산이나 세부 도메인 로직을 직접 구현하지 않습니다.
+
+## 2. Blueprint와 C++ 경계
+
+### Blueprint 우선
+
+- StateTree와 Condition/Task의 프로젝트별 구성
+- Gameplay Ability 구체 클래스
+- Animation Blueprint, Montage, Notify, Aim Offset, BlendSpace
+- DataAsset 값과 콘텐츠 에셋 연결
+- 반복 튜닝이 필요한 카메라·애니메이션 수치
+
+### C++ 우선
+
+- 공통 생명주기와 초기화 안전장치
+- 반복되는 엔진 API 래퍼
+- 상태 간 공통 정책과 이벤트 기반 인프라
+- 계산량이 크거나 네이티브 API 접근이 중요한 로직
+- 실패 복구, Delegate 해제, Timer 정리
+
+### 예외
+
+Blueprint에서 생성하는 것이 원칙이지만, 필수 컴포넌트가 누락되면 플레이 자체가 불가능하거나 모든 파생 Blueprint가 반드시 가져야 하는 경우 C++ 기본 서브오브젝트로 둘 수 있습니다. 이 예외는 문서에 이유를 기록합니다.
+
+## 3. 계층과 통신
+
+- 하위 컴포넌트끼리 직접 참조해 정책을 결정하지 않습니다.
+- StateTree Task는 EventBus에 상태 진입 사실을 게시합니다.
+- EntityStateMediator가 이를 구독해 다른 StateTree에 명령을 보냅니다.
+- Damage/Death처럼 외부에서 발생한 사실은 HealthComponent 이벤트를 Mediator가 받아 상태 명령으로 변환합니다.
+- UI는 Model/Component의 이벤트를 구독하며 상태를 직접 변경하지 않습니다.
+
+## 4. 데이터 소유권
+
+| 사실 | 유일한 변경 주체 |
+|---|---|
+| 체력·스태미나·영혼 에너지 | ASC / AttributeSet |
+| Ability 비용·쿨다운 | GameplayEffect / ASC |
+| 개별 무기의 현재 탄창 | WeaponModel |
+| 장착·손/홀스터 상태 | Upper StateTree Task + WeaponComponent |
+| 로코모션 실행 상태 | Base StateTree |
+| 파쿠르 이동 실행 | EntityLocomotionComponent |
+| 애니메이션 표현 | AnimBP — 읽기 전용 |
+
+## 5. StateTree 규칙
+
+- Condition은 전이 가능 여부만 판단합니다.
+- Task가 실제 행동을 수행합니다.
+- 이벤트 전이를 우선하고 반드시 필요한 경우만 On Tick 전이를 사용합니다.
+- 성공과 실패 목적지가 다르면 전이를 나눕니다.
+- 동일 목적지라면 `On State Completed` 하나를 사용합니다.
+- ExitState는 중단·실패·사망 경로에서도 호출될 수 있다고 가정하고 복구 코드를 멱등하게 작성합니다.
+- STC/STT의 공통 바인딩은 가능하면 `Actor + EntityContext`로 단순화합니다.
+
+## 6. Animation 규칙
+
+- Animation Blueprint는 StateTree를 직접 제어하지 않습니다.
+- Montage Notify는 시각 프레임과 게임플레이 사건의 동기화 지점으로 사용합니다.
+- Notify가 누락되거나 Montage가 중단되는 경우 Domain Component에 안전한 대체 경로를 둡니다.
+- Root Motion으로 환경 목표점에 정확히 맞춰야 하는 동작은 Motion Warping을 사용합니다.
+- 캡슐의 위치와 메시의 시각 오차를 분리해서 진단합니다.
+- 손·무릎 접촉 오차는 애니메이션, Control Rig, IK로 보정하고 캡슐 위치를 임의로 흔들지 않습니다.
+
+## 7. 파쿠르 복구 규칙
+
+Hanging, Mantle, Vault, Evade가 성공·실패·중단될 때 다음을 명시적으로 복구합니다.
+
+- MovementMode
+- GravityScale
+- Velocity
+- LedgeGrabbed 상태
+- 재감지 쿨다운
+- 충돌 설정과 임시 Ignore
+- 실행 중인 Timeline/Timer/Montage
+
+Hanging 중 0으로 변경한 GravityScale을 정상 기본값으로 저장하면 안 됩니다. 정상 값은 초기화 시점에 따로 캐싱합니다.
+
+## 8. 무기·전투 규칙
+
+- 무기별 차이는 WeaponDataAsset에 둡니다.
+- 런타임 탄약과 강화 상태는 WeaponModel에 둡니다.
+- 발사체 방향은 카메라 Ray의 목표점과 Muzzle 위치를 이용해 계산합니다.
+- 카메라 Ray는 소유 캐릭터와 장착 무기를 무시합니다.
+- Muzzle Socket의 로컬 축만 신뢰하지 말고 목표점을 향하는 회전을 계산합니다.
+- 플레이어 명중 제약은 랜덤 정확도가 아니라 반동과 유효 사거리로 처리합니다.
+- NPC 정확도는 NPC 성향과 이동 패널티로 계산합니다.
+
+## 9. 코드 변경 절차
+
+기본 절차는 다음과 같습니다.
+
+1. 변경 코드 전문 또는 정확한 변경안을 먼저 제시
+2. 영향 범위와 대안 논의
+3. 사용자 승인
+4. C++ 반영
+5. Editor와 Visual Studio를 닫고 전체 Development Editor 빌드
+6. 사용자가 Blueprint/DataAsset/Animation 에셋 연결
+7. 플레이 테스트 및 로그 확인
+8. Wiki와 일일 리포트 갱신
+
+사용자가 `바로 반영`, `승인 없이 진행`처럼 명시하면 1~3단계를 생략할 수 있습니다. 빌드를 사용자가 하겠다고 지정하면 코드 반영까지만 수행합니다.
+
+## 10. 에디터 자동화 제한
+
+- Blueprint, StateTree, Animation Blueprint, Montage, DataAsset 변경은 사용자가 직접 수행하는 것을 기본으로 합니다.
+- Codex는 노드 이름, 핀 연결, 경로, 설정값과 전체 실행 순서를 제공합니다.
+- Unreal Editor UI 자동화나 콘텐츠 바이너리 직접 변경은 사용자가 명시적으로 허용한 경우에만 수행합니다.
+- 작업 설명 마지막에는 누락 없는 전체 노드 순서 또는 도식화를 제공합니다.
+
+## 11. 문서 규칙
+
+- Markdown은 저장소에서 직접 검토 가능한 기본 형식입니다.
+- Word/Excel 산출물을 만들 때는 본문 글꼴을 맑은 고딕으로 통일합니다.
+- GitHub Markdown의 실제 표시 글꼴은 GitHub와 브라우저 설정을 따르므로 문서에서 강제하지 않습니다.
+- 기존 설명이 잘못되었으면 수정 이력만 남기고 잘못된 내용을 본문 규칙으로 유지하지 않습니다.
