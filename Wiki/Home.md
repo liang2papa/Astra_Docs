@@ -11,9 +11,10 @@
 | Hanging / Mantle | 완료 | 접촉부 미세 보정은 애니메이션 단계에서 처리 |
 | Vault | 기능 구현, 시각 품질 보류 | 전용 애니메이션 확보 후 교체 |
 | 무기 장착·수납 | 완료 | 무기별 Anim Layer 확장 |
-| 권총 발사 | 기본 경로 완료 | 발사·재장전·조준 GA 확장 |
-| 상체 조준 | 진행 중 | Pitch 제한, 총기 정렬, 왼손 IK |
-| GAS 전환 | 진행 중 | StatusModel 책임 축소 및 Attribute/Tag 이관 |
+| 권총 발사 | 단발 발사 경로 완료 | 반동, Muzzle VFX, Sound Concurrency |
+| 권총 재장전 | 기본 경로 완료 | 빈 탄창 자동 전환과 취소 경로 회귀 테스트 |
+| 상체 조준 | Pitch·왼손 IK 기반 완료 | 허리/팔 관통 보정, Hold/Toggle·Zoom |
+| GAS 전환 | Fire·Reload 완료, Aim 대기 | StatusModel 책임 축소 및 AbilitySet 이관 |
 | NPC / Soul-Link | 설계 단계 | 플레이어 전투 기반 안정화 후 착수 |
 
 ## 핵심 문서
@@ -28,6 +29,7 @@
 | [06. 애니메이션과 조준](06-Animation-and-Aiming.md) | UpperBody, Aim Offset, IK, 카메라 |
 | [07. 로드맵](07-Roadmap.md) | 완료 상태와 우선순위 |
 | [08. 에디터 절차](08-Editor-Workflows.md) | 반복 작업의 정확한 순서 |
+| [09. 남은 이슈](09-Open-Issues.md) | 미해결 문제, 임시 처리, 검증 대기 항목 |
 
 ## 최상위 데이터 흐름
 

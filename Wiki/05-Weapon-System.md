@@ -120,7 +120,7 @@ classDiagram
 ### 무기 Static Mesh
 
 - `Muzzle`: Projectile과 Muzzle VFX 시작점
-- `LeftHandGrip`: 양손 무기 또는 권총 왼손 IK 목표 — 추가 예정
+- `LeftHandGrip`: 권총 왼손 FABRIK 목표 — 생성·연결 완료, 미세 이격과 비틀림 보정 대기
 - `ShellEject`: 탄피 기능 구현 시 추가
 - `AimPoint`: 정밀 정렬이 필요할 때 추가
 
@@ -171,6 +171,11 @@ SpawnRotation = MakeRotFromX(ShotDirection)
 - 예비 탄약: 인벤토리 구현 전까지 무한
 - 기본 발사: Physical Projectile
 - 치명타: 발사 시 해당 탄환의 치명타 여부를 한 번 결정
+- 단발 발사: Fire Montage의 `Weapon_FireCommit` Notify에서 탄약 소비와 Projectile Spawn 확정
+- 재장전: Reload Montage의 `Weapon_ReloadCommit` Notify에서 탄창을 채움
+- 재장전 취소: Sprint·Holster 등 중단 시 `CancelReloadWeapon`으로 Montage와 상태 정리
+
+빈 탄창에서 공격하면 `ShouldReloadOnFireRequest()`가 Fire 요청을 Reload 요청으로 바꿉니다. Ready가 아니면 `PendingWeaponAction::Reload`로 저장해 Draw 완료 뒤 실행합니다. 코드 경로는 반영되었고 PIE 회귀 검증이 남아 있습니다.
 
 ### 계획
 

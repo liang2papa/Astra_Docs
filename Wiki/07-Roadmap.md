@@ -10,8 +10,8 @@
 | P3 | 기본 TPS 이동 | Idle/Walk/Sprint/Jump/Fall 안정 | 완료 |
 | P4 | 공중·회피 | Evade 비용, Jump/Fall, 중단 복구 | 완료 |
 | P5 | 파쿠르 | Hanging/Mantle/Vault 성공·중단 복구 | 기능 완료, Vault 시각 보류 |
-| P6 | 무기 기반 | 권총 장착·수납·발사·Upper StateTree | 진행 중 |
-| P7 | 조준·재장전 | Aim/Reload GA, 카메라와 손 정렬 | 진행 중 |
+| P6 | 무기 기반 | 권총 장착·수납·단발 발사·Upper StateTree | 기능 완료, 안정화 진행 |
+| P7 | 조준·재장전 | Reload GA, Pitch 제한, 왼손 IK, Aim Hold/Toggle | Reload·기본 정렬 완료, Aim 입력 대기 |
 | P8 | 장비·인벤토리 | WeaponModel 보존, 예비 탄약, 교체 UI | 대기 |
 | P9 | NPC 전투 | NPC ASC/AbilitySet, 성향 기반 명중률 | 대기 |
 | P10 | Soul-Link | Possession/DirectSkill/Transform/Totem | 설계 |
@@ -37,6 +37,12 @@
 - Blueprint 기반 `GA_AstraBase → GA_WeaponBase → GA_WeaponFire`
 - 카메라 Ray 목표와 Muzzle 기반 Projectile 방향 수정
 - Fire/Aim 진입 시 Sprint 취소 정책
+- Fire Montage와 `Weapon_FireCommit` Notify 기반 실제 발사
+- `GA_WeaponReload`, `STC_CanReload`, `STT_WeaponReload`
+- Reload Montage와 `Weapon_ReloadCommit` Notify 기반 탄약 반영
+- Sprint·Holster 중 Reload 취소와 Ready 복귀
+- 카메라 Pitch ±70 제한과 Aim Offset 보간
+- `LeftHandGrip` Socket과 FABRIK 연결
 
 ### 아키텍처
 
@@ -47,13 +53,13 @@
 
 ## 3. 현재 최우선 작업
 
-1. 카메라 Pitch를 ±70도로 제한
-2. Aim Offset 입력·보간 회귀 테스트
-3. 총기와 오른팔이 AimTarget을 향하도록 시각 보정
-4. `LeftHandGrip` Socket과 왼손 IK
-5. `GA_WeaponReload` 및 Reload Montage/Notify
-6. `GA_WeaponAim`의 Hold/Toggle 옵션과 카메라 Zoom
-7. Fire Montage, 반동, Muzzle VFX, Sound Concurrency
+1. 빈 탄창 Fire → Reload 자동 전환 회귀 테스트
+2. 상하 조준 시 허리 굽힘 부족과 왼팔 머리 관통 보정
+3. Pistol Idle/Fire 호환 포즈와 Idle 루프 경계 수정
+4. `GA_WeaponAim`의 Hold/Toggle 옵션과 카메라 Zoom
+5. 연사와 카메라 반동
+6. Muzzle VFX, 발사 Sound, Sound Concurrency
+7. Fire/Reload의 Evade·Jump·Hanging·피격·사망 취소 검증
 
 ## 4. 미결정·보류 항목
 

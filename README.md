@@ -15,6 +15,7 @@ Unreal 프로젝트 소스와 콘텐츠는 Plastic SCM에서 관리하고, 이 �
 - [애니메이션과 조준](Wiki/06-Animation-and-Aiming.md)
 - [로드맵](Wiki/07-Roadmap.md)
 - [에디터 작업 절차](Wiki/08-Editor-Workflows.md)
+- [남은 이슈](Wiki/09-Open-Issues.md)
 - [일일 리포트](Reports/Daily/README.md)
 - [Unity 레거시 규칙](Wiki/Appendix/Legacy-Unity-Rules.md)
 

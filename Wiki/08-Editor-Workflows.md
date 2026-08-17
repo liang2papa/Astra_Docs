@@ -164,9 +164,31 @@ AnimGraph:
 
 ```text
 Pistol Idle Base Pose
-→ AO_Pistol(X = AimYaw, Y = AimPitch)
 → UpperBody Slot
+→ AO_Pistol(X = AimYaw, Y = AimPitch)
+→ Weapon Upper Pose 선택
 → Layered Blend Per Bone
 → Control Rig / IK
 → Output Pose
 ```
+
+Fire Montage가 조준 Pitch를 유지하려면 `UpperBody Slot`이 `AO_Pistol`보다 앞에 있어야 합니다. Slot을 Aim Offset 뒤에 두면 발사 시 팔과 어깨가 고정 포즈로 돌아갈 수 있습니다.
+
+## 9. Reload 연결
+
+```text
+STC_CanReload
+→ Ready, 장착 무기, 탄창 미충전, 차단 상태 없음 검사
+→ STT_WeaponReload.EnterState
+→ Publish Simple(Event.State.Upper.ReloadEntered)
+→ Try Activate Ability by Tag(Ability.Weapon.Reload)
+→ GA_WeaponReload
+→ WeaponComp.ExecuteReloadWeapon
+→ Reload Montage
+→ Weapon_ReloadCommit Notify
+→ 탄약 반영
+→ Montage 완료: FinishTask(true) / 취소: CancelReloadWeapon
+→ Ready 복귀
+```
+
+빈 탄창 Fire 입력은 Blueprint에서 별도 탄약 분기를 복제하지 않고 `RequestWeaponFire`를 호출합니다. C++가 Fire 또는 Reload 입력 태그를 선택합니다.

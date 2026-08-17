@@ -37,6 +37,7 @@ flowchart LR
 - [[Locomotion]]
 - [[Weapon System]]
 - [[Animation and Aiming]]
+- [[09-Open-Issues|Open Issues]]
 
 ## 문서 상태 규칙
 

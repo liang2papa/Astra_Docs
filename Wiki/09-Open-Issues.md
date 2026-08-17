@@ -1,0 +1,151 @@
+# 남은 이슈
+
+> 최종 갱신: 2026-08-17  
+> 목적: 임시 처리되었거나 검증이 남은 문제를 한곳에서 추적한다. 완료된 항목은 관련 일일 리포트에 결과를 기록한 뒤 이 문서의 `최근 해결`로 이동한다.
+
+## 현재 우선 이슈
+
+### ANIM-001. 상하 조준 시 허리 굽힘 부족과 왼팔 머리 관통
+
+- 상태: 해결 필요
+- 현상: 권총을 든 상태에서 카메라를 위·아래로 움직이면 상체와 척추의 굽힘이 부족하다. 특히 위쪽 조준에서 왼팔이 머리를 통과한다.
+- 현재 구성: `UpperBody Slot → Aim Offset → 무기 상체 포즈 선택 → Layered Blend Per Bone → Control Rig/왼손 FABRIK`
+- 원인 후보:
+  - Aim Offset 포즈 자체의 척추·쇄골 회전량 부족
+  - Layered Blend 시작 본과 Mesh Space Rotation Blend 설정
+  - 왼손 IK가 오른손 무기 소켓을 강제로 따라가면서 팔꿈치가 잘못 접히는 문제
+  - 카메라 Pitch 범위와 실제 Aim Offset 포즈 범위 불일치
+- 다음 확인 순서:
+  1. IK Alpha를 0으로 두고 동일 현상이 생기는지 확인한다.
+  2. IK 없이도 관통하면 Aim Offset 포즈/척추 분배 문제로 확정한다.
+  3. IK에서만 관통하면 LeftHand FABRIK Joint Target과 팔꿈치 방향을 조정한다.
+  4. 필요하면 Spine 01~03과 clavicle_l에 Pitch를 분산하는 Control Rig 보정을 추가한다.
+- 완료 조건: 허용된 카메라 Pitch 전 범위에서 왼팔이 머리와 몸통을 관통하지 않고 총구가 조준 방향을 유지한다.
+
+### ANIM-002. Pistol Idle과 Fire 포즈 불일치 및 Idle 루프 끊김
+
+- 상태: 임시 처리, 근본 해결 필요
+- 현상: 원본 Pistol Idle과 Fire의 시작·종료 포즈가 맞지 않아 발사 전후 상체가 튄다.
+- 임시 처리: Fire 후반 프레임을 잘라 새로운 Idle을 만들어 강제로 포즈를 맞췄다.
+- 남은 문제: 새 Idle의 시작점과 끝점이 맞지 않아 루프 경계에서 모션이 끊긴다.
+- 권장 해결:
+  1. 동일 애니메이션 세트의 호환 Idle/Fire를 우선 확보한다.
+  2. 현재 애셋을 유지한다면 애니메이션 수정본에서 첫·마지막 포즈를 맞추고 루프 구간을 재설정한다.
+  3. Fire 몽타주의 Blend In/Out은 포즈 수정 후 최소 범위로 다시 조정한다.
+- 완료 조건: Idle 반복 경계와 Idle↔Fire 전환에서 팔·어깨·총기가 눈에 띄게 튀지 않는다.
+
+### ANIM-003. 왼손 IK 미세 이격과 상하 조준 시 비틀림
+
+- 상태: 사용 가능, 품질 개선 대기
+- 현상: 왼손은 `LeftHandGrip`에 붙지만 약간 떨어져 보이고 상하 조준 시 손목·팔이 조금 비틀린다.
+- 현재 판단: 기능을 막는 수준은 아니므로 다른 핵심 전투 기능보다 우선순위를 낮춘다.
+- 다음 확인: FABRIK Effector 회전 사용 여부, 손 본 축, Joint Target, 무기별 LeftHandGrip 보정 Transform.
+
+### WPN-001. 빈 탄창 공격 요청의 자동 재장전 회귀 검증
+
+- 상태: 코드 반영, 빌드·PIE 검증 필요
+- 반영 내용: 발사 요청 시 탄약이 없고 재장전할 수 있으면 `Input.Ability.Reload`로 라우팅하도록 수정했다.
+- 확인 항목:
+  - Ready 상태에서 빈 탄창으로 공격하면 Reload로 진입하는가
+  - Holstered 상태에서 빈 탄창 공격 시 Draw 이후 Reload가 예약되는가
+  - 재장전 불가능한 무기나 최대 탄창에서는 잘못 진입하지 않는가
+
+## 애니메이션 잔여 작업
+
+### ANIM-004. Draw/Holster와 Pistol Idle 포즈 호환성
+
+- Blend In/Out `0.2초 + Exponential In`으로 임시 완화했다.
+- 호환 애니메이션 세트를 확보한 뒤 다시 조정해야 한다.
+
+### ANIM-005. 권총 Equip 시 손가락 관통
+
+- 양손 그립은 대체로 맞지만 오른손 손가락 일부가 왼손을 관통한다.
+- 애니메이션 교체 또는 Control Rig의 손가락 보정이 필요하다.
+
+### ANIM-006. 무기 종류별 Animation Layer 확장
+
+- 현재는 권총 기준 `ABP_Unarmed`에 직접 구성되어 있다.
+- Rifle 등으로 확장할 때 Weapon Animation Layer Interface와 무기별 Linked Anim Layer 전환을 적용한다.
+
+## 로코모션 잔여 작업
+
+### LOC-001. Vault 전용 애니메이션 부재
+
+- 1/4 호 이동 로직은 구현되었으나 점프 기반 표현이 부자연스럽다.
+- 전용 Vault 애니메이션 또는 루트모션/모션워핑에 적합한 애셋 확보 전까지 임시 보류한다.
+
+### LOC-002. Hanging 손·무릎 깊이 보정
+
+- 손 높이는 조정되었지만 벽 깊이와 무릎 관통은 애니메이션·벽 간격에 따라 남을 수 있다.
+- `HangingWallClearance`를 게임플레이 판정값으로 과도하게 보정하지 않고 애니메이션/IK에서 해결하는 방향을 유지한다.
+
+### LOC-003. LedgeHanging→Fall Loop Inertialization 경고 재발 확인
+
+- 에디터 종료 또는 Hanging 이탈 시 Inertialization 노드 경고가 보고된 적이 있다.
+- 현재 AnimGraph 변경 후 재발 여부를 회귀 테스트한다.
+
+## 무기·전투 잔여 작업
+
+### WPN-002. Fire/Reload 취소와 상태 충돌 회귀 테스트
+
+- Sprint, Evade, Jump, Hanging, 피격, 사망 시 Fire/Reload/Draw/Holster가 올바르게 취소되는지 검증한다.
+- 발사 종료 후 자동으로 Sprint로 복귀하면 안 된다.
+
+### WPN-003. 연사·반동·HUD 피드백
+
+- 연사 간격, 카메라 반동, 회복 곡선, 이동 중 조준점 확산을 아직 완성해야 한다.
+- 플레이어 명중 제약은 반동과 유효 사거리 중심으로 유지한다.
+
+### WPN-004. 총구 화염·사운드 동시 재생 제한
+
+- Muzzle VFX와 Fire Sound를 Anim Notify 또는 발사 확정 시점에 연결한다.
+- 동시 발사음이 과도하게 겹치지 않도록 Sound Concurrency를 설정한다.
+
+### WPN-005. Aim Hold/Toggle과 카메라 확대
+
+- 무기 옵션에 따라 Hold는 짧은 확대, Toggle은 큰 확대를 지원해야 한다.
+- Aim 입력, 카메라 FOV, 자동 수납 타이머 초기화, Sprint 해제를 하나의 흐름으로 검증한다.
+
+### WPN-006. HUD 탄약 표시
+
+- `WeaponModel`의 현재 탄약을 원본으로 사용하여 HUD에 현재 탄창/예비 탄약을 표시한다.
+
+### WPN-007. Projectile 충돌 피드백
+
+- 표면별 분기는 보류하되 기본 충돌 VFX와 Sound는 `ProjectileDataAsset`에서 지정할 수 있게 한다.
+
+## 구조·GAS 잔여 작업
+
+### ARCH-001. EntityStatusModel 단계적 이전
+
+- 상태·스탯 중 GAS Attribute/Tag가 소유해야 할 항목과 StateTree 입력 컨텍스트가 소유할 항목을 분리한다.
+- NPC도 동일한 ASC/AttributeSet 기반을 사용할 수 있도록 PlayerState 전용 소유로 고정하지 않는다.
+
+### ARCH-002. AbilitySet + 입력 태그 기반 부여 구조
+
+- PlayerCharacter의 기능별 Ability 직접 참조를 줄이고 AbilitySet과 GameplayTag 기반 활성화로 이관한다.
+
+### ARCH-003. NPC용 ASC 소유 위치 확정
+
+- 빙의·변신·일반 NPC 모두 재사용할 수 있도록 Pawn/PlayerState 중 실제 싱글플레이 요구에 맞는 소유 위치를 확정한다.
+
+### ARCH-004. Soul-Link Ability 구현
+
+- `Possession`, `DirectSkill`, `Transform`, `Totem`은 설계만 정리된 상태다.
+- 플레이어 무기 어빌리티와 아스트라 어빌리티 셋이 섞이지 않도록 태그와 부여/회수 규칙을 구현해야 한다.
+
+## 최근 해결
+
+- 카메라 Pitch Min/Max가 비무장·권총 상태에 따라 적용되는 것을 확인했다.
+- 카메라 레이와 총구 방향을 분리하여 조준점 기준으로 Projectile이 발사되도록 수정했다.
+- Fire 몽타주가 고정된 팔·어깨 포즈로 돌아가던 문제는 AnimGraph를 `UpperBody Slot → Aim Offset` 순서로 변경하여 해결했다.
+- 잘못된 Fire Montage가 Weapon DataAsset에 연결되어 Projectile이 생성되지 않던 문제를 수정했다.
+- Mantle 완료 후 Falling/Hanging으로 되돌아가던 문제와 이전 위치 재매달림 문제를 해결했다.
+
+## 다음 작업 권장 순서
+
+1. 빈 탄창 공격 → Reload 자동 전환을 PIE에서 검증한다.
+2. Reload 몽타주의 탄약 반영 Notify와 취소 경로를 회귀 검증한다.
+3. Fire/Reload의 Sprint·Evade·Jump·Hanging 취소 규칙을 점검한다.
+4. Aim Hold/Toggle과 카메라 확대를 구현한다.
+5. 이후 연사·반동·HUD·VFX/사운드를 순서대로 확장한다.

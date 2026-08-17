@@ -56,8 +56,10 @@ WeaponCarryState와 UpperAction을 하나의 트리에서 관리합니다. 무�
 - `Tasks/STT_WeaponReady`
 - `Tasks/STT_WeaponHolstering`
 - `Tasks/STT_Fire`
+- `Tasks/STT_WeaponReload`
 - `Conditions/STC_CanDrawWeapon`
 - `Conditions/STC_CanFire`
+- `Conditions/STC_CanReload`
 
 ## 3. Condition과 Task 규칙
 
@@ -113,6 +115,10 @@ sequenceDiagram
     Mediator->>ASC: TryActivateAbilityByTag(Ability.Weapon.Fire)
     ASC->>GA: ActivateAbility
     GA->>Weapon: FireEquippedWeapon
+    Weapon->>Weapon: Fire Montage 재생
+    Weapon->>Weapon: Weapon_FireCommit Notify
+    Weapon->>Weapon: 탄약 소비·Projectile Spawn
+    Weapon-->>GA: 발사 완료·취소
     GA->>ASC: EndAbility
 ```
 
@@ -140,7 +146,7 @@ StateTree에서 `Actor.PlayerContext` 또는 `Actor.EntityContext` 바인딩을 
 GA_AstraBase
 └─ GA_WeaponBase
    ├─ GA_WeaponFire
-   ├─ GA_WeaponReload     (예정)
+   ├─ GA_WeaponReload
    └─ GA_WeaponAim        (예정)
 ```
 
@@ -160,7 +166,26 @@ GA_AstraBase
 
 `GA_WeaponBase`는 `CurrentAvatar`와 `WeaponComponent`를 활성화 시 해석하고 캐싱합니다. Ability Instance가 Avatar 교체 이후에도 재사용될 수 있으므로 캐시는 Avatar가 달라졌거나 Component가 무효할 때 갱신합니다.
 
-## 7. EndAbility와 CancelAbility
+## 7. Reload 구현 흐름
+
+현재 `GA_WeaponReload`, `STT_WeaponReload`, `STC_CanReload`과 C++ 재장전 실행 경로가 연결되어 있습니다.
+
+```text
+Input.Ability.Reload
+→ Upper StateTree의 STC_CanReload
+→ STT_WeaponReload
+→ StateMediator.TryActivateAbilityByTag(Ability.Weapon.Reload)
+→ GA_WeaponReload
+→ WeaponComponent.ExecuteReloadWeapon
+→ Reload Montage
+→ Weapon_ReloadCommit Notify에서 탄약 반영
+→ Montage 완료 또는 CancelReloadWeapon
+→ Ability 종료와 Upper Ready 복귀
+```
+
+탄창이 빈 상태에서 Fire 입력이 들어오면 `PlayerCharacter::RequestWeaponFire`가 `WeaponComponent::ShouldReloadOnFireRequest`를 검사하여 Fire 대신 Reload 입력 태그와 Pending Reload를 사용합니다. 이 자동 전환은 PIE 회귀 검증 항목으로 남깁니다.
+
+## 8. EndAbility와 CancelAbility
 
 - `EndAbility`: 정상 성공 또는 자체 종료 시 호출합니다.
 - `CancelAbility`: 피격, 사망, Sprint, Airborne, Traversal 등 외부 사유로 중단할 때 사용합니다.
@@ -168,7 +193,7 @@ GA_AstraBase
 
 Ability가 즉시 한 발만 발사한다면 `Activate → Commit → Fire → EndAbility`가 기본 흐름입니다. 연사·충전·지속 조준은 Ability가 활성 상태로 남아 입력 해제 또는 취소를 기다립니다.
 
-## 8. GameplayTag 기준
+## 9. GameplayTag 기준
 
 ### 입력
 

@@ -25,16 +25,16 @@
 ```mermaid
 flowchart LR
     BASE["Base Locomotion\nCached Pose"] --> SELECT["Weapon Upper Pose 선택"]
-    IDLE["Pistol Idle"] --> AIM["AO_Pistol\nAimPitch / AimYaw"]
+    IDLE["Pistol Idle"] --> SLOT["Slot UpperBody\nDraw/Holster/Fire/Reload"]
+    SLOT --> AIM["AO_Pistol\nAimPitch / AimYaw"]
     AIM --> SELECT
-    SELECT --> SLOT["Slot UpperBody\nDraw/Holster/Fire/Reload"]
-    SLOT --> LAYER["Layered Blend Per Bone\nspine 계열부터"]
+    SELECT --> LAYER["Layered Blend Per Bone\nspine 계열부터"]
     BASE --> LAYER
     LAYER --> IK["Control Rig / IK\n총기·왼손 접촉 보정"]
     IK --> OUT["Output Pose"]
 ```
 
-Montage를 Aim Offset 앞에 두면 Montage 자세가 다시 Aim Offset으로 덮일 수 있고, IK를 너무 앞에 두면 뒤의 Montage나 Blend가 손 위치를 다시 움직입니다. 최종 접촉 보정은 가능한 한 뒤쪽에 둡니다.
+현재 권총 구성에서는 `UpperBody Slot → Aim Offset → Weapon Upper Pose 선택 → Layered Blend Per Bone` 순서를 사용합니다. Slot을 Aim Offset 뒤에 두면 Fire Montage가 고정된 팔·어깨 포즈로 돌아가 카메라 조준 Pitch를 무시하는 문제가 확인되었습니다. Draw/Holster처럼 Aim Offset이 필요 없는 구간은 Aim 입력을 0으로 보간하거나 해당 분기에서 적용을 끕니다. IK를 너무 앞에 두면 뒤의 Montage나 Blend가 손 위치를 다시 움직이므로 최종 접촉 보정은 가능한 한 뒤쪽에 둡니다.
 
 ## 3. UpperBody Slot
 
@@ -64,6 +64,7 @@ Pistol Idle과 Montage가 섞여 손이 어긋나는 경우:
 - Attach Notify가 손이 실제로 무기를 놓는 프레임에 있는지 확인
 
 현재는 Blend In/Out을 조정해 임시 해결했습니다. Equip 원본과 Pistol Idle의 첫 자세가 정확히 이어지지 않으므로 최종 품질은 호환 애니메이션으로 교체해야 합니다.
+Fire와 Idle도 원본 포즈가 맞지 않아 Fire 후반 프레임으로 `MM_Pistol_NewIdle`을 만들었습니다. 현재 전환 포즈는 맞췄지만 새 Idle의 시작·끝 포즈가 달라 루프 경계가 끊기므로 근본 해결 항목으로 유지합니다.
 
 ## 5. Aim Pitch 계산
 
@@ -97,6 +98,7 @@ PlayerCameraManager에서 다음을 설정합니다.
 - `ViewPitchMax = 70`
 
 PlayerController가 커스텀 PlayerCameraManager 클래스를 사용한다면 그 클래스 기본값에서 설정합니다. 입력 축을 매 프레임 강제로 잘라내는 것보다 CameraManager의 View Pitch 제한을 우선합니다.
+현재 비무장/권총 상태와 입력에서 Pitch Min/Max 적용을 확인했습니다.
 
 ## 8. 총기 방향 보정
 
@@ -127,6 +129,7 @@ Aim Offset은 상체가 대략 목표 방향을 보게 만드는 단계입니다
 7. Draw/Holster 중에는 Alpha를 0 또는 Notify 기반 곡선으로 보간
 
 오른손이 무기의 기준이므로 왼손 IK는 오른손/무기 보정 이후에 적용합니다.
+현재 `LeftHandGrip`과 FABRIK 연결은 완료되었습니다. 손의 미세 이격과 상하 조준 시 비틀림, 위쪽 조준에서 왼팔이 머리를 통과하는 문제는 [남은 이슈](09-Open-Issues.md)에서 추적합니다.
 
 ## 10. 카메라 구성
 
