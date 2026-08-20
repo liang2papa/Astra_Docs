@@ -57,9 +57,11 @@ WeaponCarryState와 UpperAction을 하나의 트리에서 관리합니다. 무�
 - `Tasks/STT_WeaponHolstering`
 - `Tasks/STT_Fire`
 - `Tasks/STT_WeaponReload`
+- `Tasks/STT_WeaponAim`
 - `Conditions/STC_CanDrawWeapon`
 - `Conditions/STC_CanFire`
 - `Conditions/STC_CanReload`
+- `Conditions/STC_CanAim`
 
 ## 3. Condition과 Task 규칙
 
@@ -138,23 +140,22 @@ sequenceDiagram
 
 StateTree에서 `Actor.PlayerContext` 또는 `Actor.EntityContext` 바인딩을 반드시 지정합니다. Blueprint 변수에 값이 존재하는 것과 StateTree의 인스턴스 바인딩은 별개입니다.
 
-## 6. Ability Blueprint 계층
+## 6. Ability 계층과 EntityContext
 
 현재 프로젝트는 반복 튜닝과 콘텐츠 연결을 위해 GA 구체 클래스를 Blueprint로 만듭니다.
 
 ```text
-GA_AstraBase
-└─ GA_WeaponBase
+UGameplayAbility
+└─ UAstraWeaponGameplayAbilityBase (C++)
    ├─ GA_WeaponFire
    ├─ GA_WeaponReload
-   └─ GA_WeaponAim        (예정)
+   └─ GA_WeaponAim
 ```
 
-향후 계층:
+별도 계열의 향후 확장:
 
 ```text
-GA_AstraBase
-├─ GA_WeaponBase
+UGameplayAbility
 ├─ GA_SoulLinkBase
 │  ├─ Possession
 │  ├─ DirectSkill
@@ -164,9 +165,40 @@ GA_AstraBase
 └─ GA_CommonBase
 ```
 
-`GA_WeaponBase`는 `CurrentAvatar`와 `WeaponComponent`를 활성화 시 해석하고 캐싱합니다. Ability Instance가 Avatar 교체 이후에도 재사용될 수 있으므로 캐시는 Avatar가 달라졌거나 Component가 무효할 때 갱신합니다.
+`UAstraWeaponGameplayAbilityBase`는 `InstancedPerActor`이며 `OnAvatarSet`에서 Avatar의 `IEntityContextProvider`를 통해 `EntityContext`를 캐시합니다. Ability가 자신을 생성하면서 호출하는 것이 아니라 ASC가 Ability 지급 또는 Avatar 변경 과정에서 `OnAvatarSet`을 호출합니다.
 
-## 7. Reload 구현 흐름
+Weapon Ability는 PlayerController나 PlayerCharacter의 구체 타입을 따라가며 카메라를 찾지 않습니다. EntityContext에 등록된 `PlayerCameraManager`를 통해 `StartAimCameraFOV`와 `StopAimCameraFOV`를 요청합니다. 자세한 생명주기는 [[PlayerCameraManager 참조 구성]]을 참고합니다.
+
+## 7. Aim 구현 흐름
+
+```text
+IA_Astra_Aim.Started
+→ PlayerCharacter.RequestWeaponAimStarted
+→ Input.Ability.Aim
+→ Upper StateTree의 STC_CanAim
+→ STT_WeaponAim.EnterState
+→ Publish Event.State.Upper.AimEntered
+→ TryActivateAbilityByTag(Ability.Weapon.Aim)
+→ GA_WeaponAim.ActivateAbility
+→ CanAimWeapon 재검사
+→ CommitAbility
+→ WeaponComponent에서 AimFOV·보간 속도 조회
+→ AstraWeaponGameplayAbilityBase.StartAimCameraFOV
+→ AstraPlayerCameraManager.UpdateCamera
+```
+
+Aim은 즉시 종료하지 않고 활성 상태를 유지합니다. Hold 입력 해제, Toggle 재입력 또는 외부 취소로 StateTree가 Aim을 벗어나면 `STT_WeaponAim.ExitState`가 Ability를 취소하고 `StopAimCameraFOV`가 기본 FOV 복귀를 시작합니다.
+
+```text
+STT_WeaponAim.ExitState
+→ CancelAbilityByTag(Ability.Weapon.Aim)
+→ GA_WeaponAim.OnEndAbility
+→ StopAimCameraFOV
+→ Activation Owned Tag: State.Combat.Aiming 제거
+→ AstraPlayerCameraManager가 기본 FOV로 보간
+```
+
+## 8. Reload 구현 흐름
 
 현재 `GA_WeaponReload`, `STT_WeaponReload`, `STC_CanReload`과 C++ 재장전 실행 경로가 연결되어 있습니다.
 
@@ -185,7 +217,7 @@ Input.Ability.Reload
 
 탄창이 빈 상태에서 Fire 입력이 들어오면 `PlayerCharacter::RequestWeaponFire`가 `WeaponComponent::ShouldReloadOnFireRequest`를 검사하여 Fire 대신 Reload 입력 태그와 Pending Reload를 사용합니다. 이 자동 전환은 PIE 회귀 검증 항목으로 남깁니다.
 
-## 8. EndAbility와 CancelAbility
+## 9. EndAbility와 CancelAbility
 
 - `EndAbility`: 정상 성공 또는 자체 종료 시 호출합니다.
 - `CancelAbility`: 피격, 사망, Sprint, Airborne, Traversal 등 외부 사유로 중단할 때 사용합니다.
@@ -193,7 +225,7 @@ Input.Ability.Reload
 
 Ability가 즉시 한 발만 발사한다면 `Activate → Commit → Fire → EndAbility`가 기본 흐름입니다. 연사·충전·지속 조준은 Ability가 활성 상태로 남아 입력 해제 또는 취소를 기다립니다.
 
-## 9. GameplayTag 기준
+## 10. GameplayTag 기준
 
 ### 입력
 
@@ -236,3 +268,16 @@ Ability가 즉시 한 발만 발사한다면 `Activate → Commit → Fire → E
 - `Event.Command.Upper.CancelAction`
 - `Event.Command.Upper.ForceHolster`
 - `Event.Command.Upper.Disable`
+
+---
+
+## 상위 페이지
+
+- [[03_시스템 설계]]
+
+## 관련
+
+- [[시스템 아키텍처]]
+- [[무기 시스템]]
+- [[PlayerCameraManager 참조 구성]]
+- [[ADR-002 StateTree와 GAS 역할 분리]]

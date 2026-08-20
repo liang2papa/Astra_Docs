@@ -4,6 +4,12 @@
 
 Astra에서는 StateTree Task가 PlayerCharacter를 직접 참조하지 않고 [[Entity Context]]를 통해 필요한 Component에 접근하는 방식으로 적용합니다.
 
+---
+
+## 상위 페이지
+
+- [[08_기술 위키_공통 가이드]]
+
 ## 관련
 
 - [[시스템 아키텍처]]

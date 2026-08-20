@@ -19,6 +19,13 @@ Task와 Evaluator는 `EntityContext`를 통해 필요한 Component와 런타임 
 - Possession과 Avatar 교체 대응
 - 테스트 용이성 증가
 
+---
+
+## 상위 페이지
+
+- [[ADR 목록]]
+- [[03_시스템 설계]]
+
 ## 관련
 
 - [[Entity Context]]

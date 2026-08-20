@@ -12,6 +12,13 @@ PlayerCharacter의 Component 참조가 Blueprint에 필요한 수준으로 노�
 
 `GetComponentByClass`로 Component를 찾고 PlayerCharacter의 Blueprint 노출 설정을 조정한다.
 
+---
+
+## 상위 페이지
+
+- [[Troubleshooting 목록]]
+- [[08_기술 위키_공통 가이드]]
+
 ## 관련
 
 - [[무기 시스템]]

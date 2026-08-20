@@ -80,23 +80,20 @@ Event EnterState
 
 `Publish Simple`은 유지합니다. 이 이벤트가 없으면 Mediator가 Fire 진입을 알 수 없어 Sprint 취소 같은 상·하체 정책이 실행되지 않습니다.
 
-## 5. GA_WeaponBase 캐싱
+## 5. Weapon Ability의 EntityContext 캐싱
 
 ```text
-ResolveWeaponComponent
-→ Get Avatar Actor from Actor Info
-→ CurrentAvatar 저장
-→ CachedAvatar == CurrentAvatar AND IsValid(CachedWeaponComp)?
-   True  → 기존 CachedWeaponComp 반환, Succeeded = true
-   False → IsValid(CurrentAvatar)?
-           False → 반환 None, Succeeded = false
-           True  → Get Component by Class(WeaponComponent)
-                   → CachedAvatar = CurrentAvatar
-                   → CachedWeaponComp = 결과
-                   → IsValid 결과를 Succeeded로 반환
+AbilitySystemComponent
+→ UAstraWeaponGameplayAbilityBase.OnAvatarSet 호출
+→ ActorInfo.AvatarActor 확인
+→ IEntityContextProvider 구현 여부 확인
+→ AvatarActor.GetContext
+→ CachedEntityContext 저장
 ```
 
-Ability가 활성화될 때마다 무조건 Find하지 않고, Avatar가 바뀌거나 캐시가 무효일 때만 다시 찾습니다.
+Ability가 자기 자신에게 `OnAvatarSet`을 호출하는 것이 아닙니다. ASC가 Ability 지급 또는 Avatar 갱신 과정에서 호출합니다. `OnRemoveAbility`에서는 `CachedEntityContext`를 비웁니다.
+
+Weapon Ability는 `CachedEntityContext.WeaponComp`와 `CachedEntityContext.PlayerCameraManager`를 사용하며 구체 PlayerController를 직접 탐색하지 않습니다. 상세 생명주기는 [[PlayerCameraManager 참조 구성]]을 참고합니다.
 
 ## 6. GA_WeaponFire 단발 흐름
 
@@ -192,3 +189,14 @@ STC_CanReload
 ```
 
 빈 탄창 Fire 입력은 Blueprint에서 별도 탄약 분기를 복제하지 않고 `RequestWeaponFire`를 호출합니다. C++가 Fire 또는 Reload 입력 태그를 선택합니다.
+
+---
+
+## 상위 페이지
+
+- [[08_기술 위키_공통 가이드]]
+
+## 관련
+
+- [[Unreal 지식 목록]]
+- [[03_시스템 설계]]
