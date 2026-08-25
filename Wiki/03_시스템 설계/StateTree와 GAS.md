@@ -108,6 +108,7 @@ sequenceDiagram
     participant Mediator as StateMediator
     participant ASC as Ability System
     participant GA as GA_WeaponFire
+    participant Executor as Attack Executor
 
     Input->>Character: IA_Astra_Attack
     Character->>Weapon: RequestWeaponDraw(Fire)
@@ -125,7 +126,9 @@ sequenceDiagram
     GA->>Weapon: FireEquippedWeapon
     Weapon->>Weapon: Fire Montage 재생
     Weapon->>Weapon: Weapon_FireCommit Notify
-    Weapon->>Weapon: 탄약 소비·Projectile Spawn
+    Weapon->>Character: OnWeaponAttackCommitted
+    Character->>Weapon: 현재 탄약 소유 객체에 소비 요청
+    Character->>Executor: DeliveryType별 공격 실행
     Weapon-->>GA: 발사 완료·취소
     GA->>ASC: EndAbility
 ```
