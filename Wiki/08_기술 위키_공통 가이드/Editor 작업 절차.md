@@ -93,7 +93,7 @@ AbilitySystemComponent
 
 Ability가 자기 자신에게 `OnAvatarSet`을 호출하는 것이 아닙니다. ASC가 Ability 지급 또는 Avatar 갱신 과정에서 호출합니다. `OnRemoveAbility`에서는 `CachedEntityContext`를 비웁니다.
 
-Weapon Ability는 `CachedEntityContext.WeaponComp`와 `CachedEntityContext.PlayerCameraManager`를 사용하며 구체 PlayerController를 직접 탐색하지 않습니다. 상세 생명주기는 [[PlayerCameraManager 참조 구성]]을 참고합니다.
+Weapon Ability는 `CachedEntityContext.WeaponComp`와 `CachedEntityContext.PlayerCameraManager`를 사용하며 구체 PlayerController를 직접 탐색하지 않습니다. 상세 생명주기는 [PlayerCameraManager 참조 구성](Unreal/Gameplay%20Framework/PlayerCameraManager%20%EC%B0%B8%EC%A1%B0%20%EA%B5%AC%EC%84%B1.md)을 참고합니다.
 
 ## 6. GA_WeaponFire 단발 흐름
 
@@ -194,9 +194,9 @@ STC_CanReload
 
 ## 상위 페이지
 
-- [[08_기술 위키_공통 가이드]]
+- [08_기술 위키_공통 가이드](08_%EA%B8%B0%EC%88%A0%20%EC%9C%84%ED%82%A4_%EA%B3%B5%ED%86%B5%20%EA%B0%80%EC%9D%B4%EB%93%9C.md)
 
 ## 관련
 
-- [[Unreal 지식 목록]]
-- [[03_시스템 설계]]
+- [Unreal 지식 목록](Unreal/Unreal%20%EC%A7%80%EC%8B%9D%20%EB%AA%A9%EB%A1%9D.md)
+- [03_시스템 설계](../03_%EC%8B%9C%EC%8A%A4%ED%85%9C%20%EC%84%A4%EA%B3%84/03_%EC%8B%9C%EC%8A%A4%ED%85%9C%20%EC%84%A4%EA%B3%84.md)

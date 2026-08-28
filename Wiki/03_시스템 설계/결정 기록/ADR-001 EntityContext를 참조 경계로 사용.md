@@ -23,13 +23,13 @@ Task와 Evaluator는 `EntityContext`를 통해 필요한 Component와 런타임 
 
 ## 상위 페이지
 
-- [[ADR 목록]]
-- [[03_시스템 설계]]
+- [ADR 목록](ADR%20%EB%AA%A9%EB%A1%9D.md)
+- [03_시스템 설계](../03_%EC%8B%9C%EC%8A%A4%ED%85%9C%20%EC%84%A4%EA%B3%84.md)
 
 ## 관련
 
-- [[Entity Context]]
-- [[StateTree Evaluator]]
-- [[Dependency Inversion]]
-- [[시스템 아키텍처]]
+- [Entity Context](../../08_%EA%B8%B0%EC%88%A0%20%EC%9C%84%ED%82%A4_%EA%B3%B5%ED%86%B5%20%EA%B0%80%EC%9D%B4%EB%93%9C/Unreal/StateTree/Entity%20Context.md)
+- [StateTree Evaluator](../../08_%EA%B8%B0%EC%88%A0%20%EC%9C%84%ED%82%A4_%EA%B3%B5%ED%86%B5%20%EA%B0%80%EC%9D%B4%EB%93%9C/Unreal/StateTree/StateTree%20Evaluator.md)
+- [Dependency Inversion](../../08_%EA%B8%B0%EC%88%A0%20%EC%9C%84%ED%82%A4_%EA%B3%B5%ED%86%B5%20%EA%B0%80%EC%9D%B4%EB%93%9C/Programming/Architecture/Dependency%20Inversion.md)
+- [시스템 아키텍처](../%EC%8B%9C%EC%8A%A4%ED%85%9C%20%EC%95%84%ED%82%A4%ED%85%8D%EC%B2%98.md)
 

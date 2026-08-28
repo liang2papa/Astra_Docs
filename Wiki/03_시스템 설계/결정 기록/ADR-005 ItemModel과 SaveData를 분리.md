@@ -30,11 +30,11 @@ ItemModel의 ID는 현재 레벨에서만 유효한 Runtime Item ID다. 레벨 �
 
 ## 상위 페이지
 
-- [[ADR 목록]]
-- [[03_시스템 설계]]
+- [ADR 목록](ADR%20%EB%AA%A9%EB%A1%9D.md)
+- [03_시스템 설계](../03_%EC%8B%9C%EC%8A%A4%ED%85%9C%20%EC%84%A4%EA%B3%84.md)
 
 ## 관련
 
-- [[장비와 인벤토리]]
-- [[Item]]
-- [[시스템 아키텍처]]
+- [장비와 인벤토리](../%EC%9E%A5%EB%B9%84%EC%99%80%20%EC%9D%B8%EB%B2%A4%ED%86%A0%EB%A6%AC.md)
+- [Item](../%EA%B0%9D%EC%B2%B4%20%EC%84%A4%EA%B3%84/Item.md)
+- [시스템 아키텍처](../%EC%8B%9C%EC%8A%A4%ED%85%9C%20%EC%95%84%ED%82%A4%ED%85%8D%EC%B2%98.md)

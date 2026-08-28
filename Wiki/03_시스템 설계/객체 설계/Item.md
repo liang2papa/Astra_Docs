@@ -69,7 +69,7 @@ InventoryComponent가 Ammunition Item의 Total, Reserved, Available 수량을 �
 버리기·이전: Available 수량만 사용
 ```
 
-현재 C++의 WeaponModel 직접 탄약 보관은 Inventory 구현 전 임시 구조다. 목표 구조와 세부 규칙은 [[장비와 인벤토리]]를 따른다.
+현재 C++의 WeaponModel 직접 탄약 보관은 Inventory 구현 전 임시 구조다. 목표 구조와 세부 규칙은 [장비와 인벤토리](../%EC%9E%A5%EB%B9%84%EC%99%80%20%EC%9D%B8%EB%B2%A4%ED%86%A0%EB%A6%AC.md)를 따른다.
 
 ## 콘텐츠 구조
 

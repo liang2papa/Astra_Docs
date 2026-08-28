@@ -22,12 +22,12 @@ Accepted
 
 ## 상위 페이지
 
-- [[ADR 목록]]
-- [[03_시스템 설계]]
+- [ADR 목록](ADR%20%EB%AA%A9%EB%A1%9D.md)
+- [03_시스템 설계](../03_%EC%8B%9C%EC%8A%A4%ED%85%9C%20%EC%84%A4%EA%B3%84.md)
 
 ## 관련
 
-- [[시스템 아키텍처]]
-- [[소울링크]]
-- [[StateTree와 GAS]]
+- [시스템 아키텍처](../%EC%8B%9C%EC%8A%A4%ED%85%9C%20%EC%95%84%ED%82%A4%ED%85%8D%EC%B2%98.md)
+- [소울링크](../../02_%EA%B2%8C%EC%9E%84%20%EA%B8%B0%ED%9A%8D/%EC%8B%9C%EC%8A%A4%ED%85%9C%20%EA%B8%B0%ED%9A%8D/%EC%86%8C%EC%9A%B8%EB%A7%81%ED%81%AC.md)
+- [StateTree와 GAS](../StateTree%EC%99%80%20GAS.md)
 

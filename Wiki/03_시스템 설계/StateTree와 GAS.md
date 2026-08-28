@@ -14,7 +14,7 @@ StateTree와 GAS는 서로를 대체하지 않습니다.
 
 STC에서 모든 검사를 끝냈더라도 GA는 실행 시점에 탄약·사망·기절·비용 등 안전 검사를 다시 수행해야 합니다. 두 검사는 중복된 역할이 아니라 **전이 선택용 검사**와 **실행 권한 검사**입니다.
 
-StateTree와 GA는 행동 주체인 [[게임 객체 분류|Entity]]의 행동 계층입니다. `GA_Weapon*`과 무기 상체 StateTree도 Weapon Item이 소유하는 로직이 아니라 Entity가 장착 무기를 사용하는 행동을 표현합니다. Weapon Item은 정적 정의, 인스턴스 탄약과 실제 실행 결과를 소유합니다.
+StateTree와 GA는 행동 주체인 [Entity](../02_%EA%B2%8C%EC%9E%84%20%EA%B8%B0%ED%9A%8D/%EA%B2%8C%EC%9E%84%20%EA%B0%9D%EC%B2%B4%20%EB%B6%84%EB%A5%98.md)의 행동 계층입니다. `GA_Weapon*`과 무기 상체 StateTree도 Weapon Item이 소유하는 로직이 아니라 Entity가 장착 무기를 사용하는 행동을 표현합니다. Weapon Item은 정적 정의, 인스턴스 탄약과 실제 실행 결과를 소유합니다.
 
 ## 2. StateTree 구성
 
@@ -176,7 +176,7 @@ UGameplayAbility
 
 `UAstraWeaponGameplayAbilityBase`는 `InstancedPerActor`이며 `OnAvatarSet`에서 Avatar의 `IEntityContextProvider`를 통해 `EntityContext`를 캐시합니다. Ability가 자신을 생성하면서 호출하는 것이 아니라 ASC가 Ability 지급 또는 Avatar 변경 과정에서 `OnAvatarSet`을 호출합니다.
 
-현재 Weapon Ability는 PlayerController나 PlayerCharacter의 구체 타입을 따라가며 카메라를 찾지 않고, EntityContext에 등록된 `PlayerCameraManager`를 통해 `StartAimCameraFOV`와 `StopAimCameraFOV`를 요청합니다. 다만 이 FOV 기능 때문에 `UAstraWeaponGameplayAbilityBase`는 아직 Player 의존성을 가집니다. Humanoid 공용 기반으로 옮기려면 카메라 정책을 분리하거나 인터페이스로 격리해야 합니다. 자세한 생명주기는 [[PlayerCameraManager 참조 구성]]을 참고합니다.
+현재 Weapon Ability는 PlayerController나 PlayerCharacter의 구체 타입을 따라가며 카메라를 찾지 않고, EntityContext에 등록된 `PlayerCameraManager`를 통해 `StartAimCameraFOV`와 `StopAimCameraFOV`를 요청합니다. 다만 이 FOV 기능 때문에 `UAstraWeaponGameplayAbilityBase`는 아직 Player 의존성을 가집니다. Humanoid 공용 기반으로 옮기려면 카메라 정책을 분리하거나 인터페이스로 격리해야 합니다. 자세한 생명주기는 [PlayerCameraManager 참조 구성](../08_%EA%B8%B0%EC%88%A0%20%EC%9C%84%ED%82%A4_%EA%B3%B5%ED%86%B5%20%EA%B0%80%EC%9D%B4%EB%93%9C/Unreal/Gameplay%20Framework/PlayerCameraManager%20%EC%B0%B8%EC%A1%B0%20%EA%B5%AC%EC%84%B1.md)을 참고합니다.
 
 ## 7. Aim 구현 흐름
 
@@ -282,12 +282,12 @@ Ability가 즉시 한 발만 발사한다면 `Activate → Commit → Fire → E
 
 ## 상위 페이지
 
-- [[03_시스템 설계]]
+- [03_시스템 설계](03_%EC%8B%9C%EC%8A%A4%ED%85%9C%20%EC%84%A4%EA%B3%84.md)
 
 ## 관련
 
-- [[시스템 아키텍처]]
-- [[무기 시스템]]
-- [[게임 객체 분류]]
-- [[PlayerCameraManager 참조 구성]]
-- [[ADR-002 StateTree와 GAS 역할 분리]]
+- [시스템 아키텍처](%EC%8B%9C%EC%8A%A4%ED%85%9C%20%EC%95%84%ED%82%A4%ED%85%8D%EC%B2%98.md)
+- [무기 시스템](%EB%AC%B4%EA%B8%B0%20%EC%8B%9C%EC%8A%A4%ED%85%9C.md)
+- [게임 객체 분류](../02_%EA%B2%8C%EC%9E%84%20%EA%B8%B0%ED%9A%8D/%EA%B2%8C%EC%9E%84%20%EA%B0%9D%EC%B2%B4%20%EB%B6%84%EB%A5%98.md)
+- [PlayerCameraManager 참조 구성](../08_%EA%B8%B0%EC%88%A0%20%EC%9C%84%ED%82%A4_%EA%B3%B5%ED%86%B5%20%EA%B0%80%EC%9D%B4%EB%93%9C/Unreal/Gameplay%20Framework/PlayerCameraManager%20%EC%B0%B8%EC%A1%B0%20%EA%B5%AC%EC%84%B1.md)
+- [ADR-002 StateTree와 GAS 역할 분리](%EA%B2%B0%EC%A0%95%20%EA%B8%B0%EB%A1%9D/ADR-002%20StateTree%EC%99%80%20GAS%20%EC%97%AD%ED%95%A0%20%EB%B6%84%EB%A6%AC.md)
