@@ -52,13 +52,19 @@ PlayerCharacter는 Component의 세부 계산을 대신하지 않는다. WeaponC
 WeaponComponent.OnWeaponAttackCommitted
 → PlayerCharacter.HandleWeaponAttackCommitted
 ├─ 탄약 소유 객체에 AmmoCost 소비 요청
-└─ DeliveryType에 맞는 실행 객체 선택
-   ├─ PhysicalProjectile → ProjectileFactorySubsystem
-   ├─ Hitscan → HitscanExecutorComponent
-   └─ Beam → BeamExecutorComponent
+└─ PhysicalProjectile이면 FProjectileLaunchRequest 구성
+   └─ World의 ProjectileFactorySubsystem에 실행 요청
+
+WeaponComponent.OnWeaponTraceResolved
+→ PlayerCharacter.HandleWeaponTraceResolved
+└─ Hitscan/Beam Trace 결과의 대상에 피해 적용
+
+WeaponComponent.OnBeamEffectRequested
+→ PlayerCharacter.HandleBeamEffectRequested
+└─ World의 CombatEffectSubsystem에 Beam 표현 요청 전달
 ```
 
-공격 방식이 크게 늘기 전까지 별도의 숨겨진 Router나 Registry를 만들지 않는다.
+PhysicalProjectile은 `ProjectileFactorySubsystem`이 클래스별 Pool에서 `ProjectileController`를 획득·활성화하고, 명중 또는 수명 종료 시 회수한다. Hitscan과 Beam은 별도 ExecutorComponent를 만들지 않는다. 공격 방식이 크게 늘기 전까지 별도의 숨겨진 Router나 Registry를 만들지 않는다.
 
 ## Player 전용 경계
 
@@ -80,4 +86,3 @@ AI 인간형이 같은 Ability를 받아 정상적으로 사용할 수 있다면
 - [시스템 아키텍처](../시스템%20아키텍처.md)
 - [무기 시스템](../무기%20시스템.md)
 - [PlayerCameraManager 참조 구성](../../08_기술%20위키_공통%20가이드/Unreal/Gameplay%20Framework/PlayerCameraManager%20참조%20구성.md)
-
