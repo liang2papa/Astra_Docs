@@ -10,21 +10,21 @@ Accepted
 
 ## 결정
 
-정적 정의는 Item DataAsset, 현재 레벨의 객체는 ItemModel, 레벨 간 플레이어 소유 상태는 Item SaveData로 분리한다.
+정적 정의는 Item DataAsset, 현재 World의 객체는 ItemInstance, 레벨 간 플레이어 소유 상태는 Item SaveData로 분리한다. ADR 작성 당시의 `ItemModel` 개념은 코드에서 `UItemInstance`라는 이름으로 구현됐다.
 
-ItemModel의 ID는 현재 레벨에서만 유효한 Runtime Item ID다. 레벨 전환 시 플레이어 Inventory와 Equipment 상태를 SaveData로 직렬화하고, 새 레벨에서 새 ItemModel과 새 Runtime Item ID를 생성한다. 바닥 아이템은 레벨 종료 시 폐기하며 글로벌 Item Registry는 두지 않는다.
+ItemInstance의 ID는 현재 World에서만 유효한 Runtime Item ID다. `UItemInstanceFactorySubsystem`이 생성과 ID 발급을 담당한다. 레벨 전환 시 플레이어 Inventory와 Gear 상태를 SaveData로 직렬화하고, 새 World에서 새 ItemInstance와 Runtime Item ID를 생성한다. 바닥 아이템은 레벨 종료 시 폐기하며 글로벌 Item Registry는 두지 않는다.
 
 ## 이유
 
 - UObject 수명과 저장 포맷을 분리할 수 있다.
 - 레벨별 런타임 ID 충돌을 세이브 영역으로 가져오지 않는다.
 - 플레이어 소유 상태만 선택적으로 유지할 수 있다.
-- ItemModel 구조가 바뀌어도 SaveData 변환 규칙을 별도로 관리할 수 있다.
+- ItemInstance 구조가 바뀌어도 SaveData 변환 규칙을 별도로 관리할 수 있다.
 
 ## 보류
 
-- 레벨 단위 Runtime Item ID Generator의 실제 소유 위치
 - 저장 데이터 버전 관리와 마이그레이션 방식
+- Item SaveData Schema와 복원 순서
 
 ---
 

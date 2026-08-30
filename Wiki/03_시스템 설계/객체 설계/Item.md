@@ -44,32 +44,32 @@ Item은 플레이어 또는 다른 Entity가 획득·소유·보관·이전할 �
 | 계층 | 책임 |
 |---|---|
 | WeaponDataAsset | 무기 종류, DeliveryType, ShootType, 피해·사거리·탄속·반동·탄약 비용 같은 정적 정의 |
-| WeaponModel | 개별 무기의 등록 탄종·등록 탄수, 마지막 사용 탄종, 강화, 내구도, 부착물 같은 인스턴스 상태 |
+| WeaponInstance | 개별 무기의 등록 탄종·등록 탄수, 마지막 사용 탄종, 강화, 내구도, 부착물 같은 인스턴스 상태 |
 | WeaponComponent | 장착·Draw/Holster, 행동 가능 여부, 공격 데이터 계산과 공격 확정 이벤트 |
 
 조준·발사·재장전 StateTree와 Gameplay Ability는 Weapon Item의 행동이 아니라 Entity가 Item을 사용하는 행동이다.
 
 ## Model과 저장 데이터
 
-ItemModel은 현재 레벨에서 존재하는 Smart Object다. 자기 상태와 자기 상태에 관한 판단은 수행하지만 UI, 다른 Component 검색, 월드 Actor Spawn은 직접 조율하지 않는다.
+설계의 ItemModel은 코드에서 `UItemInstance`로 구현됐다. ItemInstance는 현재 World에서 존재하는 Smart Object다. 자기 상태와 자기 상태에 관한 판단은 수행하지만 UI, 다른 Component 검색, 월드 Actor Spawn은 직접 조율하지 않는다.
 
 - Item DataAsset: 정적 정의
-- ItemModel: 현재 레벨의 런타임 상태
+- ItemInstance: 현재 World의 런타임 상태
 - Item SaveData: 플레이어가 레벨을 넘어 유지할 직렬화 상태
 
-Runtime Item ID는 레벨 단위 식별자다. 레벨 전환 시 Player SaveData에서 새 ItemModel을 만들고 새 Runtime ID를 발급한다. 세이브에 이전 Runtime ID나 영속 GUID를 유지하지 않는다.
+Runtime Item ID는 World 단위 식별자다. 현재 `UItemInstanceFactorySubsystem`이 1부터 순차 발급한다. 레벨 전환 시 Player SaveData에서 새 ItemInstance를 만들고 새 Runtime ID를 발급하며, 세이브에 이전 Runtime ID나 영속 GUID를 유지하지 않는다. SaveData 복원 코드는 아직 구현 전이다.
 
 ## 탄약 소유 경계
 
-InventoryComponent가 Ammunition Item의 Total, Reserved, Available 수량을 관리한다. 장전은 탄약을 WeaponModel로 옮기지 않고 특정 탄종의 사용 권한과 수량을 등록한다. WeaponModel은 특정 Stack을 참조하지 않는다.
+InventoryComponent가 Ammunition Instance의 Total, Reserved, Available 수량을 관리한다. 장전은 탄약을 WeaponInstance로 옮기지 않고 특정 탄종의 사용 권한과 수량을 등록한다. WeaponInstance는 특정 Stack을 참조하지 않는다.
 
 ```text
-장전: Inventory Reservation 생성 → WeaponModel에 탄종·등록 수량 기록
-발사: Inventory의 Total·Reserved 감소 + WeaponModel의 등록 수량 감소
+장전: Inventory Reservation 생성 → WeaponInstance에 탄종·등록 수량 기록
+발사: Inventory의 Total·Reserved 감소 + WeaponInstance의 등록 수량 감소
 버리기·이전: Available 수량만 사용
 ```
 
-현재 C++의 WeaponModel 직접 탄약 보관은 Inventory 구현 전 임시 구조다. 목표 구조와 세부 규칙은 [장비와 인벤토리](../%EC%9E%A5%EB%B9%84%EC%99%80%20%EC%9D%B8%EB%B2%A4%ED%86%A0%EB%A6%AC.md)를 따른다.
+현재 C++은 Inventory Reservation과 WeaponInstance 등록 탄수 연동을 구현했다. PlayerState가 InventoryComponent·GearComponent·ItemTransferComponent를 소유하며, 세부 규칙과 미구현 경계는 [장비와 인벤토리](../%EC%9E%A5%EB%B9%84%EC%99%80%20%EC%9D%B8%EB%B2%A4%ED%86%A0%EB%A6%AC.md)를 따른다.
 
 ## 콘텐츠 구조
 
