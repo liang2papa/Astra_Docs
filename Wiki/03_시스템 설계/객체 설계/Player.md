@@ -2,7 +2,7 @@
 
 ```mermaid
 flowchart TD
-    Input["Enhanced Input"] --> Controller["PlayerController<br/>입력 · 조작권 · HUD"]
+    Input["Enhanced Input"] --> Controller["PlayerController<br/>입력 · 조작권 · HUD · Inventory Menu"]
     Controller -->|Possess| Character["PlayerCharacter<br/>Entity 조립 · 요청 중재"]
     Controller --> Camera["PlayerCameraManager<br/>최종 카메라 정책"]
     State["PlayerState<br/>ASC · Inventory · Gear · Item Transfer"] --> Character
@@ -20,11 +20,12 @@ Player는 사용자가 직접 조작하는 Entity다. Humanoid 공통 행동과 
 
 | 객체 | 책임 |
 |---|---|
-| PlayerController | Enhanced Input 처리, Pawn 조작권 변경, PlayerCameraManager와 HUD 소유 |
+| PlayerController | Enhanced Input 처리, Pawn 조작권 변경, PlayerCameraManager·HUD·InventoryMenuComponent 소유 |
 | PlayerCharacter | Entity Component 조립, 입력 요청 라우팅, Component 이벤트의 중앙 중재 |
 | PlayerState | ASC, AttributeSet, InventoryComponent, GearComponent, ItemTransferComponent와 Pawn 교체 후에도 유지할 상태 소유 |
 | PlayerCameraManager | 최종 View, Pitch 제한, Aim FOV, 향후 카메라 반동 처리 |
 | PlayerHUDComponent | 현재 Pawn의 상태·WeaponComponent를 구독하고 화면에 표시 |
+| InventoryMenuComponent | PlayerState의 Inventory·Gear·ItemTransfer를 조회하고 메뉴 Widget·입력 모드·행동 요청을 중계 |
 
 ## 입력 라우팅
 
@@ -83,6 +84,8 @@ PlayerCharacter
 ```
 
 Possess, `OnRep_PlayerState`, `PawnClientRestart` 때 PlayerCharacter가 PlayerState의 Inventory와 Gear를 다시 연결한다. UnPossess 때는 Gear 이벤트 구독과 WeaponComponent의 Instance 바인딩만 해제하며, PlayerState가 소유한 Item 상태는 유지한다.
+
+Inventory UI는 Pawn이 아니라 PlayerController에 둔다. `IA_ToggleInventory`는 PlayerController의 Enhanced Input으로 메뉴를 열고 닫으며, 슬롯의 좌·우클릭은 UMG 이벤트로 처리한다. `UInventoryMenuComponent`는 현재 PlayerState의 Component를 다시 조회하므로 Pawn이 교체되어도 UI가 ItemInstance를 직접 소유하지 않는다.
 
 ## Player 전용 경계
 

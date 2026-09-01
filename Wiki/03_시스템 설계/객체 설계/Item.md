@@ -35,9 +35,11 @@ Item은 플레이어 또는 다른 Entity가 획득·소유·보관·이전할 �
 - 인벤토리에 보관되는 탄환: Ammunition Item
 - 발사 후 월드에서 이동·충돌하는 탄환: Projectile Actor
 - 발사체 정적 설정: Projectile Data
-- 월드에 드롭된 Item 표현: Item을 참조하는 Pickup Actor 또는 Interactive Prop
+- 월드에 드롭된 Item 표현: 복수 ItemInstance를 보관하는 `AWorldItemActor`
 
 표현 Actor가 존재한다는 이유만으로 Item의 소유 데이터와 월드 수명주기를 합치지 않는다.
+
+현재 Drop에서는 `UWorldItemFactorySubsystem`이 `BP_ItemActor` 클래스를 준비하고 플레이어 전방 지면에 배치한다. Inventory·Gear에서 Instance 제거가 성공한 뒤 Actor를 활성화하며, 내용물이 소진된 Actor는 파괴하는 대신 클래스별 Pool로 반환한다. 이 Factory는 월드 표현의 생성·재사용을 담당할 뿐 ItemInstance의 Runtime ID는 계속 `UItemInstanceFactorySubsystem`이 발급한다.
 
 ## Weapon Item 책임
 
