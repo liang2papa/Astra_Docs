@@ -1,5 +1,7 @@
 # PlayerCameraManager 참조 구성
 
+## 설계 의도
+
 ```mermaid
 flowchart TD
     World["Map World Settings"] --> GM["GameMode"]
@@ -96,7 +98,6 @@ AbilitySystemComponent
 ## 관련
 
 - [시스템 아키텍처](../../../03_%EC%8B%9C%EC%8A%A4%ED%85%9C%20%EC%84%A4%EA%B3%84/%EC%8B%9C%EC%8A%A4%ED%85%9C%20%EC%95%84%ED%82%A4%ED%85%8D%EC%B2%98.md)
-- [무기 시스템](../../../03_%EC%8B%9C%EC%8A%A4%ED%85%9C%20%EC%84%A4%EA%B3%84/%EB%AC%B4%EA%B8%B0%20%EC%8B%9C%EC%8A%A4%ED%85%9C.md)
+- [무기 시스템](../../../03_%EC%8B%9C%EC%8A%A4%ED%85%9C%20%EC%84%A4%EA%B3%84/%EB%AC%B4%EA%B8%B0.md)
 - [StateTree와 GAS](../../../03_%EC%8B%9C%EC%8A%A4%ED%85%9C%20%EC%84%A4%EA%B3%84/StateTree%EC%99%80%20GAS.md)
 - [Entity Context](../StateTree/Entity%20Context.md)
-

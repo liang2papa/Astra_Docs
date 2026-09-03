@@ -1,5 +1,7 @@
 # UE - C2027 Incomplete Type
 
+## 설계 의도
+
 ## 증상
 
 Forward Declaration만 있는 Unreal 타입을 실제 정의가 필요한 위치에서 사용하면 C2027이 발생한다.
@@ -22,4 +24,3 @@ Forward Declaration만 있는 Unreal 타입을 실제 정의가 필요한 위치
 ## 관련
 
 - [Unreal 지식 목록](../Unreal/Unreal%20%EC%A7%80%EC%8B%9D%20%EB%AA%A9%EB%A1%9D.md)
-

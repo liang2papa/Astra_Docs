@@ -1,8 +1,10 @@
 # StateTree와 Gameplay Ability System
 
+## 설계 의도
+
 ## 1. 역할 분리
 
-StateTree와 GAS는 서로를 대체하지 않습니다.
+StateTree와 GAS는 서로를 대체하지 않음
 
 | 시스템 | 책임 |
 |---|---|
@@ -12,9 +14,9 @@ StateTree와 GAS는 서로를 대체하지 않습니다.
 | Gameplay Ability | 비용, 쿨다운, 차단, Commit, 실제 전투 행동, 취소·종료 |
 | ASC / GameplayTag | 공유 전투 상태와 Ability 수명 관리 |
 
-STC에서 모든 검사를 끝냈더라도 GA는 실행 시점에 탄약·사망·기절·비용 등 안전 검사를 다시 수행해야 합니다. 두 검사는 중복된 역할이 아니라 **전이 선택용 검사**와 **실행 권한 검사**입니다.
+STC에서 모든 검사를 끝냈더라도 GA는 실행 시점에 탄약·사망·기절·비용 등 안전 검사를 다시 수행 필요 두 검사는 중복된 역할이 아니라 **전이 선택용 검사**와 **실행 권한 검사**.
 
-StateTree와 GA는 행동 주체인 [Entity](../02_%EA%B2%8C%EC%9E%84%20%EA%B8%B0%ED%9A%8D/%EA%B2%8C%EC%9E%84%20%EA%B0%9D%EC%B2%B4%20%EB%B6%84%EB%A5%98.md)의 행동 계층입니다. `GA_Weapon*`과 무기 상체 StateTree도 Weapon Item이 소유하는 로직이 아니라 Entity가 장착 무기를 사용하는 행동을 표현합니다. Weapon Item은 정적 정의, 인스턴스 탄약과 실제 실행 결과를 소유합니다.
+StateTree와 GA는 행동 주체인 [Entity](../02_%EA%B2%8C%EC%9E%84%20%EA%B8%B0%ED%9A%8D/%EA%B2%8C%EC%9E%84%20%EA%B0%9D%EC%B2%B4%20%EB%B6%84%EB%A5%98.md)의 행동 계층 `GA_Weapon*`과 무기 상체 StateTree도 Weapon Item이 소유하는 로직이 아니라 Entity가 장착 무기를 사용하는 행동을 표현 Weapon Item은 정적 정의, 인스턴스 탄약과 실제 실행 결과를 소유
 
 ## 2. StateTree 구성
 
@@ -22,9 +24,9 @@ StateTree와 GA는 행동 주체인 [Entity](../02_%EA%B2%8C%EC%9E%84%20%EA%B8%B
 
 에셋: `Content/Astra/Player/StateTree/BaseStateTree/ST_PlayerBaseState.uasset`
 
-현재 에셋 경로는 Player 아래에 있지만 책임상 Humanoid Entity의 Locomotion 행동입니다. NPC 인간형과 공유 가능한 수준이 되면 `Entity/Humanoid/StateTrees/Locomotion`으로 이동합니다.
+현재 에셋 경로는 Player 아래에 있지만 책임상 Humanoid Entity의 Locomotion 행동 NPC 인간형과 공유 가능한 수준이 되면 `Entity/Humanoid/StateTrees/Locomotion`으로 이동
 
-전신 로코모션을 담당합니다.
+전신 로코모션을 담당
 
 - Idle
 - Walk
@@ -43,9 +45,9 @@ StateTree와 GA는 행동 주체인 [Entity](../02_%EA%B2%8C%EC%9E%84%20%EA%B8%B
 
 에셋: `Content/Astra/Player/StateTree/UpperStateTree/ST_UpperState.uasset`
 
-현재 에셋 경로는 Player 아래에 있지만 책임상 Humanoid Entity의 상체 행동입니다. 무기 외 상호작용과 스킬까지 확장할 수 있으므로 장기 분류명은 Weapon보다 `Actions` 또는 `UpperBody`를 사용합니다.
+현재 에셋 경로는 Player 아래에 있지만 책임상 Humanoid Entity의 상체 행동 무기 외 상호작용과 스킬까지 확장할 수 있으므로 장기 분류명은 Weapon보다 `Actions` 또는 `UpperBody`를 사용
 
-WeaponCarryState와 UpperAction을 하나의 트리에서 관리합니다. 무기를 들어야 공격할 수 있고, 상호작용·Sprint·Airborne·Traversal이 Carry와 Action에 동시에 영향을 주기 때문에 별도 트리 두 개로 나누지 않습니다.
+WeaponCarryState와 UpperAction을 하나의 트리에서 관리 무기를 들어야 공격할 수 있고, 상호작용·Sprint·Airborne·Traversal이 Carry와 Action에 동시에 영향을 주기 때문에 별도 트리 두 개로 나누지 않음
 
 - Holstered
 - Drawing
@@ -133,7 +135,7 @@ sequenceDiagram
     GA->>ASC: EndAbility
 ```
 
-`STT_Fire`의 `Publish Simple`은 Ability를 켜는 함수가 아닙니다. 상체 Fire 진입 사실을 Mediator에 알려 Sprint 취소 같은 교차 상태 정책을 작동시키는 이벤트입니다. 그 다음 `Try Activate Ability by Tag`가 실제 GA를 활성화합니다.
+`STT_Fire`의 `Publish Simple`은 Ability를 켜는 함수가 아닙니다 상체 Fire 진입 사실을 Mediator에 알려 Sprint 취소 같은 교차 상태 정책을 작동시키는 이벤트 그 다음 `Try Activate Ability by Tag`가 실제 GA를 활성화
 
 ## 5. STT_Fire 기준 순서
 
@@ -147,11 +149,11 @@ sequenceDiagram
    - AbilityTag: `Ability.Weapon.Fire`
 6. 반환값을 `Finish Task.Succeeded`에 연결
 
-StateTree에서 `Actor.PlayerContext` 또는 `Actor.EntityContext` 바인딩을 반드시 지정합니다. Blueprint 변수에 값이 존재하는 것과 StateTree의 인스턴스 바인딩은 별개입니다.
+StateTree에서 `Actor.PlayerContext` 또는 `Actor.EntityContext` 바인딩을 반드시 지정 Blueprint 변수에 값이 존재하는 것과 StateTree의 인스턴스 바인딩은 별개
 
 ## 6. Ability 계층과 EntityContext
 
-현재 프로젝트는 반복 튜닝과 콘텐츠 연결을 위해 GA 구체 클래스를 Blueprint로 만듭니다.
+현재 프로젝트는 반복 튜닝과 콘텐츠 연결을 위해 GA 구체 클래스를 Blueprint로 생성
 
 ```text
 UGameplayAbility
@@ -174,9 +176,9 @@ UGameplayAbility
 └─ GA_CommonBase
 ```
 
-`UAstraWeaponGameplayAbilityBase`는 `InstancedPerActor`이며 `OnAvatarSet`에서 Avatar의 `IEntityContextProvider`를 통해 `EntityContext`를 캐시합니다. Ability가 자신을 생성하면서 호출하는 것이 아니라 ASC가 Ability 지급 또는 Avatar 변경 과정에서 `OnAvatarSet`을 호출합니다.
+`UAstraWeaponGameplayAbilityBase`는 `InstancedPerActor`이며 `OnAvatarSet`에서 Avatar의 `IEntityContextProvider`를 통해 `EntityContext`를 캐시 Ability가 자신을 생성하면서 호출하는 것이 아니라 ASC가 Ability 지급 또는 Avatar 변경 과정에서 `OnAvatarSet`을 호출
 
-현재 Weapon Ability는 PlayerController나 PlayerCharacter의 구체 타입을 따라가며 카메라를 찾지 않고, EntityContext에 등록된 `PlayerCameraManager`를 통해 `StartAimCameraFOV`와 `StopAimCameraFOV`를 요청합니다. 다만 이 FOV 기능 때문에 `UAstraWeaponGameplayAbilityBase`는 아직 Player 의존성을 가집니다. Humanoid 공용 기반으로 옮기려면 카메라 정책을 분리하거나 인터페이스로 격리해야 합니다. 자세한 생명주기는 [PlayerCameraManager 참조 구성](../08_%EA%B8%B0%EC%88%A0%20%EC%9C%84%ED%82%A4_%EA%B3%B5%ED%86%B5%20%EA%B0%80%EC%9D%B4%EB%93%9C/Unreal/Gameplay%20Framework/PlayerCameraManager%20%EC%B0%B8%EC%A1%B0%20%EA%B5%AC%EC%84%B1.md)을 참고합니다.
+현재 Weapon Ability는 PlayerController나 PlayerCharacter의 구체 타입을 따라가며 카메라를 찾지 않고, EntityContext에 등록된 `PlayerCameraManager`를 통해 `StartAimCameraFOV`와 `StopAimCameraFOV`를 요청 다만 이 FOV 기능 때문에 `UAstraWeaponGameplayAbilityBase`는 아직 Player 의존성을 가집니다 Humanoid 공용 기반으로 옮기려면 카메라 정책을 분리하거나 인터페이스로 격리 필요 자세한 생명주기는 [PlayerCameraManager 참조 구성](../08_%EA%B8%B0%EC%88%A0%20%EC%9C%84%ED%82%A4_%EA%B3%B5%ED%86%B5%20%EA%B0%80%EC%9D%B4%EB%93%9C/Unreal/Gameplay%20Framework/PlayerCameraManager%20%EC%B0%B8%EC%A1%B0%20%EA%B5%AC%EC%84%B1.md)을 참고
 
 ## 7. Aim 구현 흐름
 
@@ -196,7 +198,7 @@ IA_Astra_Aim.Started
 → AstraPlayerCameraManager.UpdateCamera
 ```
 
-Aim은 즉시 종료하지 않고 활성 상태를 유지합니다. Hold 입력 해제, Toggle 재입력 또는 외부 취소로 StateTree가 Aim을 벗어나면 `STT_WeaponAim.ExitState`가 Ability를 취소하고 `StopAimCameraFOV`가 기본 FOV 복귀를 시작합니다.
+Aim은 즉시 종료하지 않고 활성 상태를 유지 Hold 입력 해제, Toggle 재입력 또는 외부 취소로 StateTree가 Aim을 벗어나면 `STT_WeaponAim.ExitState`가 Ability를 취소하고 `StopAimCameraFOV`가 기본 FOV 복귀를 시작
 
 ```text
 STT_WeaponAim.ExitState
@@ -209,7 +211,7 @@ STT_WeaponAim.ExitState
 
 ## 8. Reload 구현 흐름
 
-현재 `GA_WeaponReload`, `STT_WeaponReload`, `STC_CanReload`과 C++ 재장전 실행 경로가 연결되어 있습니다.
+현재 `GA_WeaponReload`, `STT_WeaponReload`, `STC_CanReload`과 C++ 재장전 실행 경로가 연결되어 있음
 
 ```text
 Input.Ability.Reload
@@ -224,15 +226,15 @@ Input.Ability.Reload
 → Ability 종료와 Upper Ready 복귀
 ```
 
-탄창이 빈 상태에서 Fire 입력이 들어오면 `PlayerCharacter::RequestWeaponFire`가 `WeaponComponent::ShouldReloadOnFireRequest`를 검사하여 Fire 대신 Reload 입력 태그와 Pending Reload를 사용합니다. 이 자동 전환은 PIE 회귀 검증 항목으로 남깁니다.
+탄창이 빈 상태에서 Fire 입력이 들어오면 `PlayerCharacter::RequestWeaponFire`가 `WeaponComponent::ShouldReloadOnFireRequest`를 검사하여 Fire 대신 Reload 입력 태그와 Pending Reload를 사용 이 자동 전환은 PIE 회귀 검증 항목으로 남깁니다
 
 ## 9. EndAbility와 CancelAbility
 
-- `EndAbility`: 정상 성공 또는 자체 종료 시 호출합니다.
-- `CancelAbility`: 피격, 사망, Sprint, Airborne, Traversal 등 외부 사유로 중단할 때 사용합니다.
-- 취소 경로에서도 Montage·타이머·예약 입력·GameplayTag를 정리한 뒤 Ability 수명을 끝냅니다.
+- `EndAbility`: 정상 성공 또는 자체 종료 시 호출
+- `CancelAbility`: 피격, 사망, Sprint, Airborne, Traversal 등 외부 사유로 중단할 때 사용
+- 취소 경로에서도 Montage·타이머·예약 입력·GameplayTag를 정리한 뒤 Ability 수명을 끝냅니다
 
-Ability가 즉시 한 발만 발사한다면 `Activate → Commit → Fire → EndAbility`가 기본 흐름입니다. 연사·충전·지속 조준은 Ability가 활성 상태로 남아 입력 해제 또는 취소를 기다립니다.
+Ability가 즉시 한 발만 발사한다면 `Activate → Commit → Fire → EndAbility`가 기본 흐름 연사·충전·지속 조준은 Ability가 활성 상태로 남아 입력 해제 또는 취소를 기다립니다
 
 ## 10. GameplayTag 기준
 
@@ -287,7 +289,7 @@ Ability가 즉시 한 발만 발사한다면 `Activate → Commit → Fire → E
 ## 관련
 
 - [시스템 아키텍처](%EC%8B%9C%EC%8A%A4%ED%85%9C%20%EC%95%84%ED%82%A4%ED%85%8D%EC%B2%98.md)
-- [무기 시스템](%EB%AC%B4%EA%B8%B0%20%EC%8B%9C%EC%8A%A4%ED%85%9C.md)
+- [무기 시스템](%EB%AC%B4%EA%B8%B0.md)
 - [게임 객체 분류](../02_%EA%B2%8C%EC%9E%84%20%EA%B8%B0%ED%9A%8D/%EA%B2%8C%EC%9E%84%20%EA%B0%9D%EC%B2%B4%20%EB%B6%84%EB%A5%98.md)
 - [PlayerCameraManager 참조 구성](../08_%EA%B8%B0%EC%88%A0%20%EC%9C%84%ED%82%A4_%EA%B3%B5%ED%86%B5%20%EA%B0%80%EC%9D%B4%EB%93%9C/Unreal/Gameplay%20Framework/PlayerCameraManager%20%EC%B0%B8%EC%A1%B0%20%EA%B5%AC%EC%84%B1.md)
 - [ADR-002 StateTree와 GAS 역할 분리](%EA%B2%B0%EC%A0%95%20%EA%B8%B0%EB%A1%9D/ADR-002%20StateTree%EC%99%80%20GAS%20%EC%97%AD%ED%95%A0%20%EB%B6%84%EB%A6%AC.md)

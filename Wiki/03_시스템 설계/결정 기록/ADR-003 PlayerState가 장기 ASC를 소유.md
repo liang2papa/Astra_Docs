@@ -1,16 +1,18 @@
 # ADR-003 PlayerState가 장기 ASC를 소유
 
+## 설계 의도
+
 ## 상태
 
 Accepted
 
 ## 문제
 
-영혼 결속의 빙의·변신으로 Pawn이 교체될 때 ASC와 쿨다운을 Pawn이 소유하면 장기 상태가 사라질 수 있다.
+영혼 결속의 빙의·변신으로 Pawn이 교체될 때 ASC와 쿨다운을 Pawn이 소유하면 장기 상태가 사라질 수 있음
 
 ## 결정
 
-플레이어의 장기 ASC와 AttributeSet은 PlayerState가 소유하고 현재 Pawn을 Avatar로 사용한다.
+플레이어의 장기 ASC와 AttributeSet은 PlayerState가 소유하고 현재 Pawn을 Avatar로 사용
 
 ## 이유
 
@@ -28,6 +30,5 @@ Accepted
 ## 관련
 
 - [시스템 아키텍처](../%EC%8B%9C%EC%8A%A4%ED%85%9C%20%EC%95%84%ED%82%A4%ED%85%8D%EC%B2%98.md)
-- [소울링크](../../02_%EA%B2%8C%EC%9E%84%20%EA%B8%B0%ED%9A%8D/%EC%8B%9C%EC%8A%A4%ED%85%9C%20%EA%B8%B0%ED%9A%8D/%EC%86%8C%EC%9A%B8%EB%A7%81%ED%81%AC.md)
+- [영혼 결속](../../02_%EA%B2%8C%EC%9E%84%20%EA%B8%B0%ED%9A%8D/%EC%8B%9C%EC%8A%A4%ED%85%9C%20%EA%B8%B0%ED%9A%8D/%EC%98%81%ED%98%BC%20%EA%B2%B0%EC%86%8D.md)
 - [StateTree와 GAS](../StateTree%EC%99%80%20GAS.md)
-

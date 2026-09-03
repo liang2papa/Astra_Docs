@@ -1,5 +1,7 @@
 # Unreal Editor 작업 절차
 
+## 설계 의도
+
 ## 1. C++ 변경 후 빌드
 
 ### 프로젝트 파일 재생성이 필요하지 않은 경우
@@ -200,3 +202,10 @@ STC_CanReload
 
 - [Unreal 지식 목록](Unreal/Unreal%20%EC%A7%80%EC%8B%9D%20%EB%AA%A9%EB%A1%9D.md)
 - [03_시스템 설계](../03_%EC%8B%9C%EC%8A%A4%ED%85%9C%20%EC%84%A4%EA%B3%84/03_%EC%8B%9C%EC%8A%A4%ED%85%9C%20%EC%84%A4%EA%B3%84.md)
+
+## 기술 가이드 연결
+
+- [기술 위키 전체 목록](08_%EA%B8%B0%EC%88%A0%20%EC%9C%84%ED%82%A4_%EA%B3%B5%ED%86%B5%20%EA%B0%80%EC%9D%B4%EB%93%9C.md)
+- [이슈의 기술 상세](Troubleshooting/Troubleshooting%20%EB%AA%A9%EB%A1%9D.md)
+- [UMG 배치 방법](Unreal/UMG/%ED%8C%A8%EB%84%90%EA%B3%BC%20%EC%9E%90%EC%9C%A0%20%EB%B0%B0%EC%B9%98.md)
+- [99_작업 규칙](../99_%EC%9E%91%EC%97%85%20%EA%B7%9C%EC%B9%99/99_%EC%9E%91%EC%97%85%20%EA%B7%9C%EC%B9%99.md)

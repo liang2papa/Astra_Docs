@@ -1,5 +1,7 @@
 # Entity Context
 
+## 설계 의도
+
 ## 정의
 
 StateTree Task와 Evaluator가 구체 Character를 직접 참조하지 않도록 필요한 Component와 런타임 참조를 제공하는 Context 계층입니다.
@@ -26,4 +28,3 @@ StateTree Task와 Evaluator가 구체 Character를 직접 참조하지 않도록
 
 - [StateTree Evaluator](StateTree%20Evaluator.md)
 - [Dependency Inversion](../../Programming/Architecture/Dependency%20Inversion.md)
-

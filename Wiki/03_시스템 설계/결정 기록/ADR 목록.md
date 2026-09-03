@@ -1,5 +1,7 @@
 # ADR 목록
 
+## 설계 의도
+
 - [ADR-001 EntityContext를 참조 경계로 사용](ADR-001%20EntityContext%EB%A5%BC%20%EC%B0%B8%EC%A1%B0%20%EA%B2%BD%EA%B3%84%EB%A1%9C%20%EC%82%AC%EC%9A%A9.md)
 - [ADR-002 StateTree와 GAS 역할 분리](ADR-002%20StateTree%EC%99%80%20GAS%20%EC%97%AD%ED%95%A0%20%EB%B6%84%EB%A6%AC.md)
 - [ADR-003 PlayerState가 장기 ASC를 소유](ADR-003%20PlayerState%EA%B0%80%20%EC%9E%A5%EA%B8%B0%20ASC%EB%A5%BC%20%EC%86%8C%EC%9C%A0.md)
@@ -15,4 +17,4 @@
 ## 관련
 
 - [시스템 아키텍처](../%EC%8B%9C%EC%8A%A4%ED%85%9C%20%EC%95%84%ED%82%A4%ED%85%8D%EC%B2%98.md)
-- [개발 규칙](../%EA%B0%9C%EB%B0%9C%20%EA%B7%9C%EC%B9%99.md)
+- [99_작업 규칙](../../99_%EC%9E%91%EC%97%85%20%EA%B7%9C%EC%B9%99/99_%EC%9E%91%EC%97%85%20%EA%B7%9C%EC%B9%99.md)

@@ -1,5 +1,7 @@
 # UE - Interface IntelliSense False Positive
 
+## 설계 의도
+
 ## 증상
 
 `IAbilitySystemInterface` 관련 오류 표시가 IDE에 나타난다.
@@ -23,4 +25,3 @@ IDE 표시만으로 판단하지 않고 Unreal Development Editor 전체 빌드�
 
 - [StateTree와 GAS](../../03_%EC%8B%9C%EC%8A%A4%ED%85%9C%20%EC%84%A4%EA%B3%84/StateTree%EC%99%80%20GAS.md)
 - [Editor 작업 절차](../Editor%20%EC%9E%91%EC%97%85%20%EC%A0%88%EC%B0%A8.md)
-
