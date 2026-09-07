@@ -1,0 +1,3 @@
+ItemID,MinChargeHoldTime,MaxChargeTime,ChargeAmmoConsumeInterval,ChargeAmmoPerTick,MinChargeDamageMultiplier,MaxChargeDamageMultiplier
+BasePistol,,,,,,
+AR,,,,,,

@@ -1,0 +1,3 @@
+ItemID,ContinuousTickInterval,InitialContinuousAmmoCost,ContinuousAmmoCostIncreasePerTick,InitialContinuousDamageMultiplier,ContinuousDamageMultiplierIncreasePerTick
+BasePistol,,,,,
+AR,,,,,

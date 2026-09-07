@@ -1,0 +1,12 @@
+﻿Key,SourceString,Comment
+Equipment.Title,장비,장비 창 제목
+Equipment.Menu.Unequip,장착 해제,장비 창 -> 장비 메뉴 -> 해제 기능
+Equipment.Menu.Drop,버리기,장비 창 -> 장비 메뉴 -> 버리기 기능
+Inventory.Title,인벤토리,인벤토리 창 제목
+Inventory.Menu.Equip,장착,인벤토리 창 -> 인벤토리 메뉴 -> 장착 기능
+Inventory.Menu.Split,나누기,인벤토리 창 -> 인벤토리 메뉴 -> 나누기 기능
+Inventory.Menu.Drop,버리기,인벤토리 창 -> 인벤토리 메뉴 ->버리기 기능
+Inventory.Menu.SplitDialog.Confirm,확인,인벤토리 창  -> 인벤토리 메뉴 -> 나누기 메뉴의 확인
+Inventory.Menu.SplitDialog.Cancel,취소,인벤토리 창  -> 인벤토리 메뉴 -> 나누기 메뉴의 취소
+Inventory.Menu.SplitDialog.Quantity,수량,인벤토리 창  -> 인벤토리 메뉴 -> 나누기 메뉴의 수량 {Quantity}는 나눌 수량
+Weapon.Notification.EquipmentBroken,장비가 파손되었다,파손된 무기 사용 시 표시하는 알림

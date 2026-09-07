@@ -1,0 +1,3 @@
+ItemID,ShootType,AttackCooldown,FirstFireDelayTime,AutoHolsterDelay,WeaponDrawAlignmentToleranceYaw,DrawReadyDelay
+BasePistol,SingleShot,0.3,,5,,
+AR,RapidFire,0.1,,5,,

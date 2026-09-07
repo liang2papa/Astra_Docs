@@ -1,0 +1,3 @@
+ItemID,bUsesAmmo,AmmoTypeTag,MaxLoadedAmmo,AmmoPerShot,ReloadTime,BurstShotCount
+BasePistol,TRUE,Item.Ammunition.9mm,12,1,2,3
+AR,TRUE,,30,1,3,3

@@ -1,0 +1,3 @@
+ItemID,WeaponType,AttackKind,DeliveryType
+BasePistol,Pistol,Ranged,PhysicalProjectile
+AR,AssaultRifle,Ranged,PhysicalProjectile

@@ -1,0 +1,2 @@
+ProjectileID,Speed,Lifetime,GravityScale,CollisionRadius,MaxRicochetCount,RicochetVelocityRetention,RicochetDamageRetention,bExplosive,ExplosionRadius,bHoming,HomingAcceleration,ImpactDecalSize,ImpactDecalLifetime
+Bullet_Basic,,,,,,,,,,,,,
