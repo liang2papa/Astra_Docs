@@ -28,7 +28,7 @@
 - Stackable · Tradeable · Droppable · Unique · Quest: 개별 속성
 
 | 사례 | 대표 종류 | 추가 속성 |
-|---|---|
+| --- | --- | --- |
 | 제작 가능한 총기 | Equipment / Weapon | Craftable · Tradeable · Droppable |
 | 일반 탄환 | Ammunition | Consumable · Craftable · Stackable |
 | 재료로도 사용하는 특수 탄환 | Ammunition | Consumable · Craftable · Crafting Ingredient |

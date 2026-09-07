@@ -2,8 +2,6 @@
 [Item]
  │
  ├── Ammunition
- │		│
- │		└ Projectile	
  │
  ├── Equipment
  │     │
@@ -39,12 +37,12 @@
 [ID 작성 예시]
 방식: 장비 구분, 아이템 고유 이름
 무기의 경우
-예시) Equipment_Weapon_BasePistol
+예시) Equipment.Weapon.BasePistol
 
 총알의 경우
-예시) Ammo_9mm
+예시) Ammunition.Base9mm
 
-[Item.csv]
+[01_Item.csv]
 
 ItemID: 아이템 고유 ID	
 

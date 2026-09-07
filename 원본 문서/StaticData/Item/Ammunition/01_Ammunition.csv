@@ -1,2 +1,2 @@
-ItemID,AmmoTypeTag,ProjectileID,ProjectileID,Speed,Lifetime,GravityScale,CollisionRadius,MaxRicochetCount,RicochetVelocityRetention,RicochetDamageRetention,bExplosive,ExplosionRadius,bHoming,HomingAcceleration,ImpactDecalSize,ImpactDecalLifetime
-DA_9mm_Normal,Item.Ammunition.9mm,Bullet_Basic,,,,,,,,,,,,,,
+ItemID,AmmoTypeTag,Speed,Lifetime,GravityScale,CollisionRadius,MaxRicochetCount,RicochetVelocityRetention,RicochetDamageRetention,bExplosive,ExplosionRadius,bHoming,HomingAcceleration,ImpactDecalSize,ImpactDecalLifetime
+Ammunition.Base9mm,Item.Ammunition.9mm,,,,,,,,,,,,,

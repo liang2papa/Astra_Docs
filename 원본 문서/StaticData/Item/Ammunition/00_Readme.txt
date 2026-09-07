@@ -2,17 +2,11 @@
 Item
  │
  └── Ammunition
- 		│
-  		└ Projectile	
 
-■ 탄약 고유 ID와 총알 종류를 정의
+■ 탄약 고유 ID, 호환 종류, 발사체 동작을 함께 정의
 ItemID: 아이템 고유 ID
 
 AmmoTypeTag: 총기에 호환되는 총알 종류 태그
-
-ProjectileID: 어떠한 Actor가 생성되는지, Actor의 고유 ID
-
-ProjectileID: 액터의 고유 ID
 
 Speed: 총알이 날아가는 속도	
 
@@ -36,3 +30,15 @@ HomingAcceleration: 유도 시 가속
 [미구현]
 ImpactDecalSize: 충돌 시 이펙트 크기	
 ImpactDecalLifetime: 이펙트 지속 시간
+
+[DataAsset에서 직접 설정]
+ProjectileActorClass: ProjectileFactorySubsystem이 생성할 발사체 Actor Class
+ProjectileMesh: 발사체 Mesh
+TrailVFX: 발사체 Trail 효과
+DefaultImpactVFX: 기본 충돌 효과
+DefaultImpactSound: 기본 충돌 효과음
+DefaultImpactDecal: 기본 충돌 Decal
+RicochetImpactVFX: 도탄 충돌 효과
+PenetrationEntryVFX: 관통 진입 효과
+PenetrationExitVFX: 관통 이탈 효과
+ExplosionVFX: 폭발 효과

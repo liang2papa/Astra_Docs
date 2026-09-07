@@ -2,8 +2,6 @@
 [Item]
  │
  ├── Ammunition
- │		│
- │		└ Projectile	
  │
  ├── Equipment
  │     │

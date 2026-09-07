@@ -107,7 +107,7 @@ InitialContinuousAmmoCost: 발사 시작 시 사용되는 탄약 수, 옵치 자
 ContinuousAmmoCostIncreasePerTick: 틱 당 탄약 소비량 증가율, 0이면 고정되어 사용
 InitialContinuousDamageMultiplier: 초기 발사 시 피해량 배율	
 ContinuousDamageMultiplierIncreasePerTick: 틱 당 피해량 증가 배율, 0이면 피해량 증가 없음
-MaxDamageMultiplierIncreasePerTick: 틱 당 피해량 증가 배율 최대치, 자리야 빨간 레이저 느낌으로 생각하면 됨
+MaxDamageMultiplierIncreasePerTick: 누적 피해량 증가 배율의 최대치, 0이면 상한 없음, 자리야 빨간 레이저 느낌으로 생각하면 됨
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -119,7 +119,7 @@ BaseDamage: 기본 피해량
 CriticalChancePercent: 기본 치명 확률	
 CriticalDamageMultiplier	: 기본 치명 배율, 1이면 치명 피해량 없음, 1.5면 150%
 EffectiveRange: 유효 사거리
-OutOfRangeDamageMultiplier: 유효 사거리 밖에서의 피해 감소율, 0.8이면 실제 20%의 피해만 줌
+OutOfRangeDamageMultiplier: 유효 사거리 밖에서의 피해 감소율, 0.2이면 실제 피해가 20% 감소하여 80%의 피해를 줌
 
 ■ 아직 미구현
 PierceProbabilityPercent: 관통 확률, 탄이 적과 닿았을 때 사라지지 않고 이어서 갈 확률, 몬헌의 관통탄
@@ -146,12 +146,12 @@ bUsesRecoil	: 반동이 있는 무기인가?
 
 // 무기 발사 당 수치
 Min, Max 사이에서 무작위로 반동값 생성
-RecoilPitchMin: 최소 반동 pitch
-RecoilPitchMax: 최대 반동 pitch	
-RecoilYawMin: 최소 반동 yaw	
-RecoilYawMax: 최대 반동 yaw
+RecoilPitchPerShotMin: 1발당 최소 Pitch 반동
+RecoilPitchPerShotMax: 1발당 최대 Pitch 반동
+RecoilYawPerShotMin: 1발당 최소 Yaw 반동
+RecoilYawPerShotMax: 1발당 최대 Yaw 반동
 
-// 무기 
-MaxRecoilPitch: 최대 반동 pitch
-MaxRecoilYaw: 최대 반동 yaw	
-RecoilRecoveryDurtion: 반동 회복 속도, 무기가 반동을 마친 후 원래 자리로 돌아오는 시간
+// 누적 반동 제한
+RecoilPitchAccumulationLimit: 누적 가능한 최대 Pitch 반동
+RecoilYawAccumulationLimit: 누적 가능한 최대 Yaw 반동
+RecoilRecoveryDuration: 반동 회복 시간, 무기가 반동을 마친 후 원래 자리로 돌아오는 시간

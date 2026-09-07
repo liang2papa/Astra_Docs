@@ -1,3 +1,3 @@
 ItemID,AimInputMode,AimFOV,AimFOVInterpSpeed,VisualAimCorrectionInterpSpeed,MaxVisualAimCorrectionPitch,MaxVisualAimCorrectionYaw
-BasePistol,,,,,,
-AR,,,,,,
+Equipment.Weapon.BasePistol,,,,,,
+Equipment.Weapon.BaseAR,,,,,,

@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Wiki/08_기술 위키_공통 가이드/Unreal/Unreal 지식 목록.md",
+                "file": "Wiki/02_게임 기획/객체 기획/Item.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Unreal 지식 목록"
+              "title": "Item"
             }
           }
         ]
@@ -191,6 +191,7 @@
   },
   "active": "d8ab7684d5a7c7a3",
   "lastOpenFiles": [
+    "Wiki/08_기술 위키_공통 가이드/Unreal/Unreal 지식 목록.md",
     "Wiki/08_기술 위키_공통 가이드/Unreal/UMG/HUD 값과 아이콘 표시.md",
     "Wiki/08_기술 위키_공통 가이드/Unreal/UMG/패널과 자유 배치.md",
     "Wiki/08_기술 위키_공통 가이드/Unreal/StateTree/StateTree Evaluator.md",
@@ -216,7 +217,6 @@
     "Wiki/00_프로젝트 개요/프로젝트 목표.md",
     "원본 문서/원문 대응표.md",
     "Wiki/01_일정 관리/일일 기록/2026/2026-09-01.md",
-    "Wiki/01_일정 관리/일일 기록/일일 기록.md",
     "Wiki/04_아트 및 애니메이션/애니메이션 설계",
     "Wiki/02_게임 기획/객체 기획",
     "원본 문서/NPC 행동 설계.xlsx",
