@@ -6,15 +6,11 @@ Item
   		└ Projectile	
 
 ■ 탄약 고유 ID와 총알 종류를 정의
-□ ItemID: 아이템 고유 ID
+ItemID: 아이템 고유 ID
 
-□ AmmoTypeTag: 총기에 호환되는 총알 종류 태그
+AmmoTypeTag: 총기에 호환되는 총알 종류 태그
 
-□ ProjectileID: 어떠한 Actor가 생성되는지, Actor의 고유 ID
-
-
-[02_Projectile.csv]
-■ 투사체의 정적 데이터 정의
+ProjectileID: 어떠한 Actor가 생성되는지, Actor의 고유 ID
 
 ProjectileID: 액터의 고유 ID
 

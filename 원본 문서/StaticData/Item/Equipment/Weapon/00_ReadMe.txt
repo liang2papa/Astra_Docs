@@ -13,7 +13,7 @@ Item
  │			├ WeaponAccuracy: 명중률 설정
  │			├ WeaponAim: 조준 설정
  │			├ WeaponAmmo: 탄약 관련 설정
- │			├ WeaponCharge: 재장전 설정
+ │			├ WeaponCharge: 충전식 무기의 설정
  │			├ WeaponContinuous: 레이저와 같은 지속형 무기의 타이밍 설정
  │			├ WeaponDamage: 피해량 관련 설정
  │			├ WeaponFire: 공격 입력 시 실제 발사 타이밍 설정
