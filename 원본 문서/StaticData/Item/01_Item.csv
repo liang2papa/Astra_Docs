@@ -1,4 +1,0 @@
-ItemID,ItemCategory,ItemRarity,MaxStackSize,Weight,bConsumable,bCanBeCraftingMaterial,bDismantleable
-Equipment.Weapon.BasePistol,Equipment,,,,,,
-Equipment.Weapon.BaseAR,Equipment,,,,,,
-Ammunition.Base9mm,Ammunition,,,,,,

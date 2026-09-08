@@ -1,3 +1,0 @@
-ItemID,bUsesAmmo,AmmoTypeTag,MaxLoadedAmmo,AmmoPerShot,ReloadTime,BurstShotCount
-Equipment.Weapon.BasePistol,TRUE,Item.Ammunition.9mm,12,1,2,3
-Equipment.Weapon.BaseAR,TRUE,,30,1,3,3

@@ -1,3 +1,0 @@
-ItemID,bUsesRecoil,RecoilPitchPerShotMin,RecoilPitchPerShotMax,RecoilYawPerShotMin,RecoilYawPerShotMax,RecoilPitchAccumulationLimit,RecoilYawAccumulationLimit,RecoilRecoveryDuration
-Equipment.Weapon.BasePistol,,,,,,,,
-Equipment.Weapon.BaseAR,,,,,,,,

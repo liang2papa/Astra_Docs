@@ -1,4 +1,0 @@
-ItemID,DefinitionType,AssetFolder,AssetName
-Equipment.Weapon.BasePistol,Weapon,/Game/Astra/Item/Equipment/Weapon/Pistol/001_BasePistol,DA_001_BasePistol
-Equipment.Weapon.BaseAR,Weapon,/Game/Astra/Item/Equipment/Weapon/Rifle,DA_AR
-Ammunition.Base9mm,Ammunition,/Game/Astra/Item/Ammunition/PhysicalBullet,DA_9mm_Normal

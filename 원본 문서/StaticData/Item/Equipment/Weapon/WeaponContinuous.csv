@@ -1,3 +1,0 @@
-ItemID,ContinuousTickInterval,InitialContinuousAmmoCost,ContinuousAmmoCostIncreasePerTick,InitialContinuousDamageMultiplier,ContinuousDamageMultiplierIncreasePerTick,MaxDamageMultiplierIncreasePerTick
-Equipment.Weapon.BasePistol,,,,,,
-Equipment.Weapon.BaseAR,,,,,,

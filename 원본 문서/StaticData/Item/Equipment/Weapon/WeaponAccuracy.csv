@@ -1,3 +1,0 @@
-ItemID,BaseAccuracy,AimingAccuracyBonus,MovingHipFireAccuracyPenalty,MovingAimingAccuracyPenalty,AirborneHipFireAccuracyPenalty,AirborneAimingAccuracyPenalty,MaxSpreadAngleDegrees,AIAccuracyMultiplier,AIMovingAccuracyPenalty,AITargetMovingAccuracyPenalty,AIMissSpreadAngle
-Equipment.Weapon.BasePistol,80,20,80,20,80,20,,,,,
-Equipment.Weapon.BaseAR,80,20,80,20,80,20,,,,,

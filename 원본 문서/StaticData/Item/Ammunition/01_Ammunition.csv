@@ -1,2 +1,0 @@
-ItemID,AmmoTypeTag,Speed,Lifetime,GravityScale,CollisionRadius,MaxRicochetCount,RicochetVelocityRetention,RicochetDamageRetention,bExplosive,ExplosionRadius,bHoming,HomingAcceleration,ImpactDecalSize,ImpactDecalLifetime
-Ammunition.Base9mm,Item.Ammunition.9mm,,,,,,,,,,,,,
