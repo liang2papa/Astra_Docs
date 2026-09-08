@@ -26,7 +26,7 @@ flowchart LR
 
 - 인벤토리에 보관되는 탄환: Ammunition Item
 - 발사 후 월드에서 이동·충돌하는 탄환: Projectile Actor
-- 발사체 정적 설정: Projectile Data
+- 발사체 정적 설정: Ammunition DataAsset
 - 월드에 드롭된 Item 표현: 복수 ItemInstance를 보관하는 `AWorldItemActor`
 
 표현 Actor가 존재한다는 이유만으로 Item의 소유 데이터와 월드 수명주기를 합치지 않음
@@ -41,9 +41,12 @@ Inventory·Gear에서 Instance 제거가 성공한 뒤 Actor를 활성화하며,
 
 | 계층 | 책임 |
 |---|---|
-| WeaponDataAsset | 무기 종류, DeliveryType, ShootType, 피해·사거리·탄속·반동·탄약 비용 같은 정적 정의 |
-| WeaponInstance | 개별 무기의 등록 탄종·등록 탄수, 마지막 사용 탄종, 강화, 내구도, 부착물 같은 인스턴스 상태 |
+| WeaponDataAsset | 무기 종류, DeliveryType, ShootType, 피해·사거리·반동·탄약 호환성과 비용 같은 정적 정의 |
+| AmmunitionDataAsset | 탄종, ProjectileActorClass, 탄속·수명·충돌·Impact 같은 발사체 정적 정의 |
+| WeaponInstance | 개별 무기의 등록 탄종·등록 탄수, 마지막 사용 탄종, 강화·부착물과 상속한 장비 내구도 같은 인스턴스 상태 |
 | WeaponComponent | 장착·Draw/Holster, 행동 가능 여부, 공격 데이터 계산과 공격 확정 이벤트 |
+
+Equipment의 최대 내구도는 `UEquipmentDataAsset`, 현재 내구도와 파손 판정은 `UEquipmentInstance`가 공통으로 소유
 
 조준·발사·재장전 StateTree와 Gameplay Ability는 Weapon Item의 행동이 아니라 Entity가 Item을 사용하는 행동
 
@@ -66,6 +69,24 @@ Runtime Item ID는 World 단위 식별자다
 레벨 전환 시 Player SaveData에서 새 ItemInstance를 만들고 새 Runtime ID를 발급하며, 세이브에 이전 Runtime ID나 영속 GUID를 유지하지 않음
 
 SaveData 복원 코드는 아직 구현 전
+
+정적 `ItemID`와 런타임 `RuntimeItemId`는 별도 식별자
+
+```text
+ItemID
+→ CSV 행과 DataAsset을 연결하는 정적 조립 키
+→ 예: Equipment.Weapon.BasePistol, Ammunition.Base9mm
+
+RuntimeItemId
+→ 현재 World의 ItemInstance 식별자
+→ ItemInstanceFactorySubsystem이 순차 발급
+```
+
+`ItemID`에는 `DA_`, `BP_` 같은 Unreal Asset 접두어를 넣지 않음
+
+무기 DataAsset은 공통 Item·Equipment CSV와 9개 Weapon CSV의 동일한 `ItemID` 행을 조립해 구성
+
+탄약 DataAsset은 공통 Item CSV와 Ammunition CSV를 조립하고, Projectile 전용 ID·CSV·DataAsset은 사용하지 않음
 
 ## 탄약 소유 경계
 
@@ -113,6 +134,7 @@ Item/
 - [게임 객체 분류](../../02_게임%20기획/게임%20객체%20분류.md)
 - [무기 시스템](../%EB%AC%B4%EA%B8%B0.md)
 - [장비와 인벤토리](../장비와%20인벤토리.md)
+- [CSV 기반 DataAsset 구성](../../08_%EA%B8%B0%EC%88%A0%20%EC%9C%84%ED%82%A4_%EA%B3%B5%ED%86%B5%20%EA%B0%80%EC%9D%B4%EB%93%9C/Unreal/Assets/CSV%20%EA%B8%B0%EB%B0%98%20DataAsset%20%EA%B5%AC%EC%84%B1.md)
 
 ## 문서 연결
 

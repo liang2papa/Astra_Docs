@@ -8,7 +8,7 @@
 
 - 기존 남은 이슈·해결된 이슈의 기술 내용 이관
 - 미해결 항목은 해결법 확정 문서가 아닌 현재 상태·검증 절차
-- 기존 기록 기준일: 남은 이슈 2026-09-02 / 해결 이슈 2026-08-28
+- 현재 확인일: 2026-09-08
 - 이관일: 2026-09-03
 - 이번에 확인한 UI 대화·일부 C++ 이외의 전체 구현·PIE 재검증은 미수행
 - 원인·해결 방법이 기록되지 않은 부분은 임의 보완하지 않음
@@ -32,9 +32,10 @@
 
 - 발사 확정 시 반동 누적, `PlayerCameraManager` 적용, Fire Montage 종료 후 회복 코드는 반영되었다.
 - 단발 Commit과 Continuous 공격 Tick 성공 시 반동이 누적되며, 실패한 공격 요청은 반동을 만들지 않는다.
-- 무기별 DataAsset에 반동 범위·최대치·`RecoilRecoveryDuration`을 설정하고 빌드 및 PIE에서 체감과 회복을 검증해야 한다. 기본 회복 시간은 0이므로 미설정 시 즉시 복구된다.
+- 무기별 DataAsset에 1발당 반동 범위·누적 제한·`RecoilRecoveryDuration`을 설정하고 PIE에서 체감과 회복을 검증해야 한다. 기본 회복 시간은 0이므로 미설정 시 즉시 복구된다.
 - 이동 사격은 조준점 확산·탄도 오차, 정지 사격은 카메라 반동을 중심으로 분리한다.
-- 조준·이동·외부 보정·내구도를 반영한 명중률과 확산 계산 함수는 구현됐지만 실제 `ShotDirection`과 HUD 조준점에는 아직 연결하지 않았다.
+- 조준·이동·외부 보정을 반영한 명중률과 확산 계산 함수는 구현됐지만 실제 `ShotDirection`과 HUD 조준점에는 아직 연결하지 않았다.
+- 현재 반동 Property는 `RecoilPitchPerShotMin/Max`, `RecoilYawPerShotMin/Max`, `RecoilPitchAccumulationLimit`, `RecoilYawAccumulationLimit`를 사용한다.
 - 공중 조준 `80`, 공중 미조준 `0` 데이터는 확정·추가됐지만 현재 명중률 함수는 이동 속도만 검사하므로 Airborne 우선 분기가 아직 필요하다.
 - HUD Crosshair의 상태·반동 기반 Scale 갱신 C++는 구현됐지만 실제 명중률과 거리별 확산 반경에는 아직 연결하지 않았다.
 - 카메라 조작은 반동 회복을 막지 않으며, 회복 중 새 발사가 성공하면 남은 반동에 새 반동을 누적한 뒤 회복을 다시 시작한다.
@@ -96,7 +97,9 @@
 
 #### 현재 기록·검증 범위
 
-- 표면별 분기는 보류하되 기본 충돌 VFX와 Sound는 `ProjectileDataAsset`에서 지정할 수 있게 한다.
+- 표면별 분기는 보류하되 기본 충돌 VFX와 Sound는 `AmmunitionDataAsset`에서 지정한다.
+- `AmmunitionDataAsset`이 ProjectileActorClass·비행·충돌·Impact 설정을 함께 소유한다.
+- 별도 ProjectileDataAsset·ProjectileID는 사용하지 않는다.
 
 ## 해결 기록
 

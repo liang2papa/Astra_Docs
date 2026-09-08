@@ -8,7 +8,7 @@
 
 - 기존 남은 이슈·해결된 이슈의 기술 내용 이관
 - 미해결 항목은 해결법 확정 문서가 아닌 현재 상태·검증 절차
-- 기존 기록 기준일: 남은 이슈 2026-09-02 / 해결 이슈 2026-08-28
+- 현재 확인일: 2026-09-08
 - 이관일: 2026-09-03
 - 이번에 확인한 UI 대화·일부 C++ 이외의 전체 구현·PIE 재검증은 미수행
 - 원인·해결 방법이 기록되지 않은 부분은 임의 보완하지 않음
@@ -17,13 +17,14 @@
 
 ### ITEM-001. 최신 C++ 전체 빌드와 PIE 회귀 검증
 
-- 상태: 최신 전체 빌드·회귀 검증 대기
+- 상태: Development Editor 빌드 성공 · PIE 회귀 검증 대기
 
 #### 현재 기록·검증 범위
 
 - ItemInstance·Inventory·Gear·ItemTransfer·WorldItem Factory·Inventory Menu 코드는 Editor에 반영됐다.
-- 헤더와 Reflection 변경을 포함한 Development Editor / Win64 전체 빌드의 최종 UBT `Result:`를 확인해야 한다.
+- 2026-09-08 Development Editor / Win64 빌드의 최종 UBT `Result: Succeeded` 확인
 - Inventory Stack·Capacity, Gear Equip·Swap, Split·Drop·Pool, Reservation·Reload와 Pawn 교체 후 상태 유지 경로를 PIE에서 검증한다.
+- ItemID·CSV Import와 Ammunition 통합 이후 DataAsset 값·발사 회귀를 PIE에서 검증한다.
 
 ### ITEM-002. WorldItem 부분 획득 검증과 상호작용 전환
 
@@ -57,7 +58,7 @@
 
 ### ITEM-005. Inventory·Gear UI
 
-- 상태: Stack 분할 완료 · 나머지 UI 검증 대기
+- 상태: Stack 분할 완료 · Tooltip C++ 반영 · Blueprint/PIE 검증 대기
 
 #### 현재 기록·검증 범위
 
@@ -65,10 +66,14 @@
 - 7×7 Inventory/Gear Slot·아이콘·Inventory/Gear Context Menu 연결, 장비 해제 동작 확인
 - 장착 선택 enum의 멤버 저장 누락 수정 안내 후 사용자 수정 확인. 전체 Equip 조합 회귀는 별도
 - Stack 분할: SetDialogData 멤버 저장 누락 수정 후 2026-09-03 사용자 해결 확인
-- Drop 결과·Tooltip·실패 메시지·Locked Capacity·메뉴 열기/닫기 검증 잔여
+- Tooltip은 `FItemTooltipViewData` 값 스냅샷을 MenuComponent가 구성해 Widget Event에 전달한다.
+- 현재 ViewData는 공통 Item·Equipment·Weapon 값을 포함한다. Ammunition 전용 필드와 중첩 Struct 분리는 후속 확장이다.
+- 변경 전 `DisplayItemTooltip` Event Pin이 남은 Blueprint 컴파일 오류가 최근 로그에 기록됐다. WBP 저장 이후 최종 Compile·PIE 결과는 미확인이다.
+- Drop 결과·Tooltip 종류별 표시·실패 메시지·Locked Capacity·메뉴 열기/닫기 검증 잔여
 - Preferred/Reserved 탄약: Stack 독립 설계 유지. 대표 Stack·아이콘·수량 표현 확정 잔여
 - [Stack 분할 해결 상세](../Unreal/UMG/%EC%88%98%EB%9F%89%20%EC%9E%85%EB%A0%A5%EA%B3%BC%20Stack%20%EB%B6%84%ED%95%A0.md)
 - [장착 옵션과 초기화 값 전달](../Unreal/UMG/%EB%8F%99%EC%A0%81%20%EC%9C%84%EC%A0%AF%20%EC%83%9D%EC%84%B1%EA%B3%BC%20%EB%8D%B0%EC%9D%B4%ED%84%B0%20%EA%B0%B1%EC%8B%A0.md)
+- [Tooltip ViewData와 ViewModel](../Unreal/UMG/Tooltip%20ViewData%EC%99%80%20ViewModel.md)
 
 ## 해결 기록
 
