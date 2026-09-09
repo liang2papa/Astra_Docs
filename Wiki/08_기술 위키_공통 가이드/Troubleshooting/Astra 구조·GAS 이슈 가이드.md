@@ -8,21 +8,59 @@
 
 - 기존 남은 이슈·해결된 이슈의 기술 내용 이관
 - 미해결 항목은 해결법 확정 문서가 아닌 현재 상태·검증 절차
-- 기존 기록 기준일: 남은 이슈 2026-09-02 / 해결 이슈 2026-08-28
+- 현재 확인일: 2026-09-09
 - 이관일: 2026-09-03
 - 이번에 확인한 UI 대화·일부 C++ 이외의 전체 구현·PIE 재검증은 미수행
 - 원인·해결 방법이 기록되지 않은 부분은 임의 보완하지 않음
 
 ## 남은 작업
 
-### ARCH-001. EntityStatusModel 단계적 이전
+### ARCH-001. EntityStatusModel 제거
 
-- 상태: 단계적 이전 대기
+- 상태: 논의 필요
 
 #### 현재 기록·검증 범위
 
-- 상태·스탯 중 GAS Attribute/Tag가 소유해야 할 항목과 StateTree 입력 컨텍스트가 소유할 항목을 분리한다.
-- NPC도 동일한 ASC/AttributeSet 기반을 사용할 수 있도록 PlayerState 전용 소유로 고정하지 않는다.
+- 능력치를 GAS AttributeSet으로 이전하고 EntityStatusModel을 제거한다.
+- AttributeSet의 조회·변경 경로를 먼저 확정한다.
+- NPC도 같은 ASC·AttributeSet 구조를 사용하도록 소유 위치와 접근 경계를 함께 결정한다.
+
+### ARCH-005. WeaponComponent 클래스 분할
+
+- 상태: 논의 필요
+
+#### 현재 기록·검증 범위
+
+- NPC 제작 전에 수행한다.
+- WeaponComponent가 PlayerCharacter에서 받는 이벤트와 GAS가 사용하는 API를 먼저 목록화한다.
+- 동작별 Handler를 WeaponComponent가 소유하는 안을 우선 검토한다.
+- Handler의 결과가 외부 전달을 요구하면 WeaponComponent가 Character로 반환한다.
+- 클래스 자체 분할안과 Handler 소유안을 비교한 뒤 책임 경계를 확정한다.
+
+### ARCH-006. EntityLocomotionComponent 클래스 분할
+
+- 상태: 설계 필요
+
+#### 현재 기록·검증 범위
+
+- NPC 제작 전에 수행한다.
+- 현재 GAS가 사용하는 기능과 Entity 공통 기능을 기준으로 책임을 분리한다.
+- 세부 Handler와 클래스 경계는 미정이다.
+
+### ARCH-007. PlayerContext 재생성 경고 제거
+
+- 상태: 원인 분석 필요
+
+#### 증상
+
+`BP_PlayerCharacter_C_0: PlayerContext was missing and has been recreated.`
+
+#### 현재 기록·검증 범위
+
+- 경고를 정상 초기화로 간주하지 않는다.
+- PlayerContext 생성 전에 MovementComponent 등 필수 참조가 준비되는 시점을 확인한다.
+- 초기화 순서를 고치거나 생성 시점을 늦추는 방식을 비교한다.
+- 현재 경고 출력과 런타임 재생성 경로는 `PlayerCharacter.cpp`에 남아 있다.
 
 ### ARCH-002. AbilitySet + 입력 태그 기반 부여 구조
 

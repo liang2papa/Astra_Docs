@@ -25,16 +25,18 @@
 
 기존 기록 전체 이관. 원인이 확정되지 않은 항목은 검증 대기 유지
 
-## 후속 검증 순서
+## 후속 작업 순서
 
-기존 남은 이슈의 권장 순서 이관. 완료된 일반 Stack 분할은 실패·취소 회귀로 범위 축소
+1. WeaponComponent 책임 분할
+2. EntityLocomotionComponent 책임 분할
+3. EntityStatusModel 제거와 AttributeSet 이전
+4. 입력에 따른 무기 선택
+5. 적대 인간형 NPC 제작
+6. 무기 해제 후 재장착 시 발사 불가 수정
+7. 명중률의 실제 ShotDirection 연결
+8. 총기 연발 형태 구현
 
-1. 장착 슬롯 조합과 Stack 분할 실패·취소 경로 확인
-2. Inventory/Gear Drop·WorldItem Pool 재사용·실패 경로 확인
-3. 최신 소스 전체 빌드와 Pawn 교체 회귀 검증
-4. Bag Capacity 감소·초과 WorldItem Transaction 구현
-5. SaveData Schema·레벨 전환 복원 구현
-6. Preferred/Reserved 탄약 UI 연결 후 RapidFire·명중률 연동
+세부 우선순위는 [남은 이슈](../../01_%EC%9D%BC%EC%A0%95%20%EA%B4%80%EB%A6%AC/%EB%82%A8%EC%9D%80%20%EC%9D%B4%EC%8A%88.md)에서 관리
 
 ## 일정 상태·상위 페이지
 

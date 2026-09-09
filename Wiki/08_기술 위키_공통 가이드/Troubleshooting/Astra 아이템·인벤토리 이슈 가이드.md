@@ -8,32 +8,20 @@
 
 - 기존 남은 이슈·해결된 이슈의 기술 내용 이관
 - 미해결 항목은 해결법 확정 문서가 아닌 현재 상태·검증 절차
-- 현재 확인일: 2026-09-08
+- 현재 확인일: 2026-09-09
 - 이관일: 2026-09-03
 - 이번에 확인한 UI 대화·일부 C++ 이외의 전체 구현·PIE 재검증은 미수행
 - 원인·해결 방법이 기록되지 않은 부분은 임의 보완하지 않음
 
 ## 남은 작업
 
-### ITEM-001. 최신 C++ 전체 빌드와 PIE 회귀 검증
+### ITEM-002. WorldItem 상호작용 방식 전환과 Soft Reference 로딩
 
-- 상태: Development Editor 빌드 성공 · PIE 회귀 검증 대기
-
-#### 현재 기록·검증 범위
-
-- ItemInstance·Inventory·Gear·ItemTransfer·WorldItem Factory·Inventory Menu 코드는 Editor에 반영됐다.
-- 2026-09-08 Development Editor / Win64 빌드의 최종 UBT `Result: Succeeded` 확인
-- Inventory Stack·Capacity, Gear Equip·Swap, Split·Drop·Pool, Reservation·Reload와 Pawn 교체 후 상태 유지 경로를 PIE에서 검증한다.
-- ItemID·CSV Import와 Ammunition 통합 이후 DataAsset 값·발사 회귀를 PIE에서 검증한다.
-
-### ITEM-002. WorldItem 부분 획득 검증과 상호작용 전환
-
-- 상태: 부분 획득·풀 검증 / 상호작용·로딩 후속 작업
+- 상태: 상호작용·로딩 후속 작업
 
 #### 현재 기록·검증 범위
 
-- `AWorldItemActor`는 여러 ItemInstance를 보관하고 Pawn Overlap 시 수용 가능한 수량만 Inventory·Gear로 이전한다.
-- 일부만 획득하면 남은 수량과 Actor를 유지하고, 모두 소진되면 `OnDepleted` 후 Factory Pool로 반환되는 경로를 PIE에서 확인한다.
+- `AWorldItemActor`는 여러 ItemInstance를 보관하고 수용 가능한 수량만 Inventory·Gear로 이전한다.
 - 현재 Overlap 즉시 획득을 향후 별도 Interaction 입력 방식으로 교체한다.
 - ItemDataAsset의 Soft ItemStaticMesh 자동 로딩과 취소 정책은 아직 연결하지 않았다.
 
@@ -56,9 +44,9 @@
 - 새 World의 ItemInstanceFactorySubsystem을 통해 Instance와 ID를 재발급한 뒤 Inventory·Gear를 복원한다.
 - Preferred Ammo Map도 현재 Transient이므로 Player SaveData에 포함해야 한다.
 
-### ITEM-005. Inventory·Gear UI
+### ITEM-005. Inventory·Gear UI 후속 구현
 
-- 상태: Stack 분할 완료 · Tooltip C++ 반영 · Blueprint/PIE 검증 대기
+- 상태: Stack 분할 완료 · Tooltip C++ 반영 · Widget 연결 진행
 
 #### 현재 기록·검증 범위
 
@@ -68,12 +56,44 @@
 - Stack 분할: SetDialogData 멤버 저장 누락 수정 후 2026-09-03 사용자 해결 확인
 - Tooltip은 `FItemTooltipViewData` 값 스냅샷을 MenuComponent가 구성해 Widget Event에 전달한다.
 - 현재 ViewData는 공통 Item·Equipment·Weapon 값을 포함한다. Ammunition 전용 필드와 중첩 Struct 분리는 후속 확장이다.
-- 변경 전 `DisplayItemTooltip` Event Pin이 남은 Blueprint 컴파일 오류가 최근 로그에 기록됐다. WBP 저장 이후 최종 Compile·PIE 결과는 미확인이다.
-- Drop 결과·Tooltip 종류별 표시·실패 메시지·Locked Capacity·메뉴 열기/닫기 검증 잔여
+- Tooltip 공통값·종류별 영역·희귀도 색상·아이콘 연결을 완성한다.
+- Drop 결과·실패 메시지·Locked Capacity·메뉴 열기/닫기 표현을 완성한다.
 - Preferred/Reserved 탄약: Stack 독립 설계 유지. 대표 Stack·아이콘·수량 표현 확정 잔여
 - [Stack 분할 해결 상세](../Unreal/UMG/%EC%88%98%EB%9F%89%20%EC%9E%85%EB%A0%A5%EA%B3%BC%20Stack%20%EB%B6%84%ED%95%A0.md)
 - [장착 옵션과 초기화 값 전달](../Unreal/UMG/%EB%8F%99%EC%A0%81%20%EC%9C%84%EC%A0%AF%20%EC%83%9D%EC%84%B1%EA%B3%BC%20%EB%8D%B0%EC%9D%B4%ED%84%B0%20%EA%B0%B1%EC%8B%A0.md)
 - [Tooltip ViewData와 ViewModel](../Unreal/UMG/Tooltip%20ViewData%EC%99%80%20ViewModel.md)
+
+### ITEM-006. 탄약이 0인 무기 장착 시 자동 장전
+
+- 상태: 미구현
+
+#### 현재 기록·검증 범위
+
+- Inventory에서 무기 장착이 확정된 뒤 장전 탄약이 0인지 확인한다.
+- 0이면 직접 탄약을 변경하지 않고 기존 Reload 요청 흐름으로 전달한다.
+- 발사 요청 시 빈 탄창 자동 재장전과 별개의 장착 편의 기능이다.
+
+### ITEM-007. WeaponInstance의 장전 탄약 소유 구조 변경
+
+- 상태: 논의 필요
+
+#### 현재 기록·검증 범위
+
+- 버리기와 재획득을 거쳐도 장전 탄약을 WeaponInstance 상태로 유지한다.
+- Inventory의 탄약 예약 구조는 현재 방식으로 유지한다.
+- 두 상태의 동기화·해제 시점과 Drop 직렬화 규칙은 미정이다.
+- 인벤토리에서 즉시 버리기는 우선 사용하지 않는다.
+
+### ITEM-008. 무기 장착 슬롯 선택 방식 변경
+
+- 상태: 미구현
+
+#### 현재 기록·검증 범위
+
+- 두 슬롯이 비었으면 Weapon1에 즉시 장착한다.
+- Weapon1만 비었으면 Weapon1에 즉시 장착한다.
+- Weapon2만 비었으면 Weapon2에 즉시 장착한다.
+- 두 슬롯이 모두 찼을 때만 선택 옵션을 표시한다.
 
 ## 해결 기록
 

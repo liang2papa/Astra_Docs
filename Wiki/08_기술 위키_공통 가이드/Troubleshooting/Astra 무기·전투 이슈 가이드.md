@@ -8,7 +8,7 @@
 
 - 기존 남은 이슈·해결된 이슈의 기술 내용 이관
 - 미해결 항목은 해결법 확정 문서가 아닌 현재 상태·검증 절차
-- 현재 확인일: 2026-09-08
+- 현재 확인일: 2026-09-09
 - 이관일: 2026-09-03
 - 이번에 확인한 UI 대화·일부 C++ 이외의 전체 구현·PIE 재검증은 미수행
 - 원인·해결 방법이 기록되지 않은 부분은 임의 보완하지 않음
@@ -24,15 +24,13 @@
 - Sprint, Evade, Jump, Hanging, 피격, 사망 시 Fire/Reload/Draw/Holster가 올바르게 취소되는지 검증한다.
 - 발사 종료 후 자동으로 Sprint로 복귀하면 안 된다.
 
-### WPN-003. 연사·반동·HUD 피드백
+### WPN-003. 총기 명중률 구현
 
-- 상태: 반동 코드 반영 · 실제 탄 퍼짐 연동 대기
+- 상태: 계산 기반 구현 · 실제 탄 퍼짐 연동 대기
 
 #### 현재 기록·검증 범위
 
-- 발사 확정 시 반동 누적, `PlayerCameraManager` 적용, Fire Montage 종료 후 회복 코드는 반영되었다.
-- 단발 Commit과 Continuous 공격 Tick 성공 시 반동이 누적되며, 실패한 공격 요청은 반동을 만들지 않는다.
-- 무기별 DataAsset에 1발당 반동 범위·누적 제한·`RecoilRecoveryDuration`을 설정하고 PIE에서 체감과 회복을 검증해야 한다. 기본 회복 시간은 0이므로 미설정 시 즉시 복구된다.
+- 반동 누적·카메라 적용·회복과 HUD Crosshair 상태 갱신은 구현됐다.
 - 이동 사격은 조준점 확산·탄도 오차, 정지 사격은 카메라 반동을 중심으로 분리한다.
 - 조준·이동·외부 보정을 반영한 명중률과 확산 계산 함수는 구현됐지만 실제 `ShotDirection`과 HUD 조준점에는 아직 연결하지 않았다.
 - 현재 반동 Property는 `RecoilPitchPerShotMin/Max`, `RecoilYawPerShotMin/Max`, `RecoilPitchAccumulationLimit`, `RecoilYawAccumulationLimit`를 사용한다.
@@ -49,7 +47,7 @@
 - `AttackInstanceId`를 유지하며 Continuous Tick과 Beam Effect Start/Update/Stop이 같은 공격에 연결되는지 확인한다.
 - 입력 해제뿐 아니라 탄약 부족, Holster, Unequip, Stun, Death와 Ability Cancel에서도 동일한 종료 경로를 타야 한다.
 
-### WPN-011. RapidFire 반복 발사
+### WPN-011. 총기 연발 형태 구현
 
 - 상태: 미구현
 
@@ -58,6 +56,39 @@
 - 현재 일반 총기 발사는 `SingleShot`만 완성되어 있고 `RapidFire`는 enum과 데이터만 존재한다.
 - 입력 유지, AttackCooldown 이후 다음 발사 요청, 입력 해제 중지와 빈 탄창 Reload 전환을 구현해야 한다.
 - Sprint, Evade, Jump 취소와 Aim Hold 중 연발 유지, 발사별 탄약·반동·HUD 갱신을 검증한다.
+- WeaponComponent 분할, 명중률 구현, NPC 제작 후 구현한다.
+
+### WPN-012. 착지 시 Reload 유지
+
+- 상태: 미구현
+
+#### 현재 기록·검증 범위
+
+- 착지 전이가 진행 중인 Reload를 취소하지 않도록 상태 전이와 취소 조건을 분리한다.
+
+### WPN-013. 조준 중 자동 수납 시간 정지
+
+- 상태: 미구현
+
+#### 현재 기록·검증 범위
+
+- Aim 수명 동안 Auto Holster Timer를 중지한다.
+- Aim 종료 후 Timer를 다시 시작한다.
+
+### WPN-015. 무기 해제 후 재장착 시 발사 불가
+
+- 상태: 원인 분석 필요
+
+#### 증상
+
+- 무기를 해제한 뒤 다시 장착하면 발사되지 않는다.
+
+#### 확인 범위
+
+- `GearComponent.OnActiveWeaponChanged` 이후 `PlayerCharacter.HandleActiveWeaponChanged` 호출 확인
+- `WeaponComponent.ClearWeaponInstance` 이후 `BindWeaponInstance` 재호출 확인
+- WeaponInstance Delegate, Mesh, Carry State, Action State 재설정 확인
+- 원인 확정 전 수정안을 단정하지 않는다.
 
 ### WPN-004. 총구 화염·사운드 동시 재생 제한
 
@@ -68,27 +99,17 @@
 - Muzzle VFX와 Fire Sound를 Anim Notify 또는 발사 확정 시점에 연결한다.
 - 동시 발사음이 과도하게 겹치지 않도록 Sound Concurrency를 설정한다.
 
-### WPN-005. Aim Hold/Toggle과 카메라 확대
+### WPN-006. 탄약 표시 방식 변경
 
-- 상태: 통합 검증 대기
-
-#### 현재 기록·검증 범위
-
-- 무기 옵션에 따라 Hold는 짧은 확대, Toggle은 큰 확대를 지원해야 한다.
-- Aim 입력, 카메라 FOV, 자동 수납 타이머 초기화, Sprint 해제를 하나의 흐름으로 검증한다.
-
-### WPN-006. HUD 탄약 표시
-
-- 상태: 기본 표시 완료 · Available/Reservation 표현 대기
+- 상태: 기본 표시 완료 · 표시 정책 변경 대기
 
 #### 현재 기록·검증 범위
 
 - 기본 HUD Widget·DataAsset·Component·Controller 중계 구현
 - 무기 아이콘·현재/최대 탄약·발사 시 감소·초기값 표시는 PlayerHUD 작업에서 사용자 완료 확인
-- 현재 C++ DisplayAmmo 입력: CurrentAmmo / MaxLoadedAmmo / AvailableAmmo / bUsesAmmo
-- WeaponInstance 등록 탄수와 Inventory Available 탄약을 원본으로 사용
-- Available 탄약과 Preferred/Reserved 표현의 Blueprint 연결·검증 잔여
-- 기본 표시 완료를 탄약 Reservation UI 전체 완료로 확대하지 않음
+- 표시값을 `현재 탄약 / 전체 탄약`으로 단순화한다.
+- 같은 값을 무기 Tooltip에도 표시한다.
+- `전체 탄약`의 정확한 계산 범위는 구현 전에 확정한다.
 - [HUD 값과 아이콘 표시](../Unreal/UMG/HUD%20%EA%B0%92%EA%B3%BC%20%EC%95%84%EC%9D%B4%EC%BD%98%20%ED%91%9C%EC%8B%9C.md)
 
 ### WPN-007. Projectile 충돌 피드백
@@ -102,6 +123,13 @@
 - 별도 ProjectileDataAsset·ProjectileID는 사용하지 않는다.
 
 ## 해결 기록
+
+### WPN-005. Aim Hold/Toggle과 카메라 확대
+
+- 상태: 기능 완료
+- Aim Hold/Toggle 입력, `STC_CanAim`, `STT_WeaponAim`, `GA_WeaponAim` 연결 완료
+- EntityContext에서 PlayerCameraManager를 공급하고 Aim 진입·종료 시 FOV를 적용·복구
+- 조준 중 Auto Holster Timer 정지는 WPN-013 후속 개선으로 분리
 
 ### WPN-001. 빈 탄창 공격 요청의 자동 재장전
 
