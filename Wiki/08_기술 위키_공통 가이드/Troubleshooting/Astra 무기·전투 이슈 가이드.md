@@ -8,7 +8,7 @@
 
 - 기존 남은 이슈·해결된 이슈의 기술 내용 이관
 - 미해결 항목은 해결법 확정 문서가 아닌 현재 상태·검증 절차
-- 현재 확인일: 2026-09-09
+- 현재 확인일: 2026-09-14
 - 이관일: 2026-09-03
 - 이번에 확인한 UI 대화·일부 C++ 이외의 전체 구현·PIE 재검증은 미수행
 - 원인·해결 방법이 기록되지 않은 부분은 임의 보완하지 않음
@@ -49,14 +49,15 @@
 
 ### WPN-011. 총기 연발 형태 구현
 
-- 상태: 미구현
+- 상태: C++ 반복 발사 구조 반영
 
 #### 현재 기록·검증 범위
 
-- 현재 일반 총기 발사는 `SingleShot`만 완성되어 있고 `RapidFire`는 enum과 데이터만 존재한다.
-- 입력 유지, AttackCooldown 이후 다음 발사 요청, 입력 해제 중지와 빈 탄창 Reload 전환을 구현해야 한다.
-- Sprint, Evade, Jump 취소와 Aim Hold 중 연발 유지, 발사별 탄약·반동·HUD 갱신을 검증한다.
-- WeaponComponent 분할, 명중률 구현, NPC 제작 후 구현한다.
+- AttackSequenceHandler가 RapidFire 입력 유지와 반복 Fire Montage를 관리한다.
+- 공격 성공 뒤 AttackCooldown이 끝나면 최신 Aim Solution으로 다음 발사를 시작한다.
+- 입력 해제·취소·탄약 또는 Commit 실패 시 Sequence를 종료한다.
+- 공격 1회 실행과 탄약 소비는 AttackCommitHandler에 요청한다.
+- ThreeShot·ChargedShot 전용 Sequence 규칙은 별도 확인이 필요하다.
 
 ### WPN-012. 착지 시 Reload 유지
 
@@ -68,12 +69,13 @@
 
 ### WPN-013. 조준 중 자동 수납 시간 정지
 
-- 상태: 미구현
+- 상태: C++ 반영
 
 #### 현재 기록·검증 범위
 
-- Aim 수명 동안 Auto Holster Timer를 중지한다.
-- Aim 종료 후 Timer를 다시 시작한다.
+- WeaponComponent가 Aiming GameplayTag 변경을 구독한다.
+- Aiming 태그가 있으면 CarryHandler의 Auto Holster Timer를 중지한다.
+- 태그가 제거되면 Auto Holster Timer를 다시 시작한다.
 
 ### WPN-015. 무기 해제 후 재장착 시 발사 불가
 

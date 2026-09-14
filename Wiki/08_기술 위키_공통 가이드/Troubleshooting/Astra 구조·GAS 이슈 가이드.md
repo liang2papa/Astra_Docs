@@ -27,15 +27,23 @@
 
 ### ARCH-005. WeaponComponent 클래스 분할
 
-- 상태: 논의 필요
+- 상태: C++ 기능 분리 반영
 
 #### 현재 기록·검증 범위
 
-- NPC 제작 전에 수행한다.
-- WeaponComponent가 PlayerCharacter에서 받는 이벤트와 GAS가 사용하는 API를 먼저 목록화한다.
-- 동작별 Handler를 WeaponComponent가 소유하는 안을 우선 검토한다.
-- Handler의 결과가 외부 전달을 요구하면 WeaponComponent가 Character로 반환한다.
-- 클래스 자체 분할안과 Handler 소유안을 비교한 뒤 책임 경계를 확정한다.
+- WeaponComponent는 외부 Facade로 유지한다.
+- Aim·Carry·Reload·Recoil·AttackSequence·AttackCommit Handler를 내부 소유한다.
+- 공통 참조는 FWeaponHandlerContext에서 관리한다.
+- 외부 객체는 Handler를 직접 참조하지 않는다.
+- Handler 간 직접 참조를 만들지 않는다.
+- PhysicalProjectile 생성과 탄약 소비는 AttackCommitHandler가 담당한다.
+- Handler는 WeaponComponent를 Outer로 생성하고 `UPROPERTY(Transient)` 참조로 수명을 유지한다.
+- 공통 Context는 참조만 보관하고 Handler 간 직접 참조를 만들지 않는다.
+- ASC·Inventory·WeaponInstance 교체 시 Context를 갱신한다.
+- 무기 Instance 해제 전에 진행 행동 취소와 Delegate 해제를 수행한다.
+- Component 생성자에서 초기화 전 외부 소유 Mesh를 역참조하지 않는다.
+- Muzzle·Hand·Holster Socket 누락은 원점 Transform으로 대체하지 않고 실패로 처리한다.
+- [WeaponComponent 기능 분리](../../03_%EC%8B%9C%EC%8A%A4%ED%85%9C%20%EC%84%A4%EA%B3%84/WeaponComponent%20%EA%B8%B0%EB%8A%A5%20%EB%B6%84%EB%A6%AC.md)
 
 ### ARCH-006. EntityLocomotionComponent 클래스 분할
 
