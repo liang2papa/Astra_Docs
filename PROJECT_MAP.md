@@ -2,7 +2,7 @@
 
 > Kimi Work 작업 시 파일/클스 탐색을 줄이기 위한 경로 매핑 파일.
 > 구조가 바뀌면 이 파일을 업데이트하거나, "Map 업데이트해줘"라고 요청하면 된다.
-> 마지막 갱신: 2026-09-15 (소스 스캔 기준)
+> 마지막 갱신: 2026-09-16 (소스 스캔 기준)
 
 ---
 
@@ -64,6 +64,7 @@
 | EntityAttributeSet | `Entity\Ability\EntityAttributeSet.h` |
 | EntityStaminaAttributeSet | `Entity\Ability\EntityStaminaAttributeSet.h` |
 | EntityStaminaComponent | `Entity\Ability\EntityStaminaComponent.h` |
+| EntitySoulEnergyComponent | `Entity\Ability\EntitySoulEnergyComponent.h` |
 
 ### Entity — Combat / Weapon
 | 클래스 | 헤더 |
@@ -82,6 +83,7 @@
 ### Entity — Control
 | 클래스 | 헤더 |
 |---|---|
+| ControllableEntity | `Entity\Control\ControllableEntity.h` |
 | ControllableEntity | `Entity\Control\ControllableEntity.h` |
 | EntityInputBufferComponent | `Entity\Control\EntityInputBufferComponent.h` |
 | EntityInputStateTreeNodes | `Entity\Control\EntityInputStateTreeNodes.h` |
