@@ -8,7 +8,7 @@
 
 - 기존 남은 이슈·해결된 이슈의 기술 내용 이관
 - 미해결 항목은 해결법 확정 문서가 아닌 현재 상태·검증 절차
-- 현재 확인일: 2026-09-09
+- 현재 확인일: 2026-10-08
 - 이관일: 2026-09-03
 - 이번에 확인한 UI 대화·일부 C++ 이외의 전체 구현·PIE 재검증은 미수행
 - 원인·해결 방법이 기록되지 않은 부분은 임의 보완하지 않음
@@ -17,13 +17,13 @@
 
 ### ARCH-001. EntityStatusModel 제거
 
-- 상태: 논의 필요
+- 상태: C++ 반영. StatusModel 참조 제거 확인
 
 #### 현재 기록·검증 범위
 
-- 능력치를 GAS AttributeSet으로 이전하고 EntityStatusModel을 제거한다.
-- AttributeSet의 조회·변경 경로를 먼저 확정한다.
-- NPC도 같은 ASC·AttributeSet 구조를 사용하도록 소유 위치와 접근 경계를 함께 결정한다.
+- 능력치를 Entity ASC의 AttributeSet으로 이전. 현재 소스에 StatusModel 참조 없음
+- Player·NPC 공통 Entity 초기화 경로 사용. SoulEnergy는 PlayerState ASC에 분리
+- 상세 경계는 [시스템 아키텍처](../../03_시스템%20설계/시스템%20아키텍처.md) 참고
 
 ### ARCH-005. WeaponComponent 클래스 분할
 
@@ -47,17 +47,16 @@
 
 ### ARCH-006. EntityLocomotionComponent 클래스 분할
 
-- 상태: 설계 필요
+- 상태: C++ 책임 분리 반영. 에셋 연결·동작별 회귀 확인 별도
 
 #### 현재 기록·검증 범위
 
-- NPC 제작 전에 수행한다.
-- 현재 GAS가 사용하는 기능과 Entity 공통 기능을 기준으로 책임을 분리한다.
-- 세부 Handler와 클래스 경계는 미정이다.
+- Entity 공통 이동·행동 경계 분리. 현재 NPC도 공통 LocomotionComponent 사용
+- Blueprint 행동 Task는 명령 연결 담당. NPC AIController는 추적·순찰 PathFollowing 실행 담당
 
 ### ARCH-007. PlayerContext 재생성 경고 제거
 
-- 상태: 원인 분석 필요
+- 상태: 현재 C++에서 경고·재생성 경로 제거 확인. 실행 중 재발 여부 확인 별도
 
 #### 증상
 
@@ -68,7 +67,8 @@
 - 경고를 정상 초기화로 간주하지 않는다.
 - PlayerContext 생성 전에 MovementComponent 등 필수 참조가 준비되는 시점을 확인한다.
 - 초기화 순서를 고치거나 생성 시점을 늦추는 방식을 비교한다.
-- 현재 경고 출력과 런타임 재생성 경로는 `PlayerCharacter.cpp`에 남아 있다.
+- 2026-10-08 소스 확인: 해당 경고 문구와 StatusModel 참조 없음
+- 과거 증상 기록 유지. 전체 초기화 회귀 완료를 의미하지 않음
 
 ### ARCH-002. AbilitySet + 입력 태그 기반 부여 구조
 
@@ -80,11 +80,13 @@
 
 ### ARCH-003. NPC용 ASC 소유 위치 확정
 
-- 상태: 설계 확정 대기
+- 상태: NPC Pawn 소유 확정·C++ 반영
 
 #### 현재 기록·검증 범위
 
-- 빙의·변신·일반 NPC 모두 재사용할 수 있도록 Pawn/PlayerState 중 실제 싱글플레이 요구에 맞는 소유 위치를 확정한다.
+- EntityCharacter가 자신의 ASC를 소유. Owner·Avatar 모두 해당 Character로 초기화
+- HP·Effect·쿨다운은 육체 귀속. Player 고유 SoulEnergy는 PlayerState ASC 소유
+- 영혼 결속 Possess/해제 실제 연결은 후속 작업
 
 ### ARCH-004. 영혼 결속 Ability 구현
 

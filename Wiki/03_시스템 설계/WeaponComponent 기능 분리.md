@@ -73,7 +73,7 @@ WeaponComponent 생성
 | 객체 | 역할 |
 |---|---|
 | `WeaponComponent` | 외부 API 제공. Handler 초기화·Context 갱신·명령 중재·결과 Event 재발행 |
-| `FWeaponHandlerContext` | WeaponInstance, StatusModel, ASC, AnimationMesh, BodyCollision, InventoryComponent, WeaponMesh 참조 보관. 판단·실행 없음 |
+| `FWeaponHandlerContext` | WeaponInstance, ASC, AnimationMesh, BodyCollision, InventoryComponent, WeaponMesh, OwnerActor 참조 보관. 판단·실행 없음 |
 | `AimHandler` | 조준 가능 여부. Aim Solution Trace. Muzzle 기준 발사 방향 자료. Visual Aim Correction. Aim FOV 설정 조회 |
 | `CarryHandler` | 손·홀스터 Socket 부착. Carry State. Draw·Holster Montage. Pending Action. Auto Holster Timer |
 | `ReloadHandler` | 재장전 가능 여부. 사용할 탄종 선택. Reload Montage 수명. 정상 종료 시 Reservation·WeaponInstance 탄약 확정 |
@@ -127,6 +127,11 @@ sequenceDiagram
 ```
 
 ### 발사 규칙
+
+- 2026-10-08 반영: 공격 취소·입력 종료·Sequence 종료 시 기존 발사 쿨다운 유지
+- 비지속 공격의 Commit 성공 시 AttackCooldown 타이머 시작. 만료 또는 무기 런타임 초기화에서 해제
+- CanAttackWeapon에서 쿨다운 재검사. 시야 상실·재발견만으로 간격 초기화하지 않음
+- NPC 반복 요청은 몸 방향·Ready·GA 종료·쿨다운 확인 후 발신
 
 - `AttackSequenceHandler`는 발사 시점과 반복 순서를 담당
 - `AttackCommitHandler`는 한 발 또는 한 Tick의 공격 결과를 담당
@@ -196,6 +201,9 @@ sequenceDiagram
 - 탄창에 탄약이 남았으면 같은 등록 탄종의 Available 수량 사용
 - 탄창이 비었으면 Inventory의 호환 탄약 선택 규칙 사용
 - Reservation과 WeaponInstance의 장전 탄수를 함께 갱신
+- 위 Reservation 규칙은 Player 경로. NPC는 bIsNPC 기반으로 WeaponInstance 탄창만 소비
+- NPC 무제한 예비 탄약은 CombatTendencyData.bInfiniteReserveAmmo 사용. Inventory 없이 등록 탄종의 탄창 보충
+- NPC Reload에도 Capability.Combat.Reload 필요. bCanReload=false이면 요청 차단
 - StateTree Condition은 전이 사전 검사
 - StateTree Task는 상태 실행과 GA 활성화 요청
 - GA와 Handler는 실행 직전에 상태와 자원을 다시 검사
@@ -243,7 +251,7 @@ flowchart TD
     ReadyTask --> Enter["EnterReadyCarryState"]
     Enter --> Branch{"손 부착 성공?"}
     Branch -->|예| Publish["ReadyEntered 게시"]
-    Publish --> Success["Task 성공"]
+    Publish --> Success["Ready Running 유지"]
     Branch -->|아니오| Failure["Task 실패"]
     Publish --> Mediator["EntityStateMediator"]
     Mediator --> CancelSprint["Lower StateTree에 CancelSprint"]
@@ -260,6 +268,8 @@ flowchart TD
 - Traversal·Evade 진입은 기존 `EntityStateMediator → ForceHolster` 유지
 - C++ Event와 Mediator 경로는 반영됨
 - StateTree Asset의 전이·Task 노드 연결, Compile, PIE는 Editor 확인 필요
+
+2026-09-30 첨부 Ready Task 확인: 손 부착 성공→ReadyEntered 게시→Running 유지. 성공 시 FinishTask 호출 불필요. 부착 실패 시 FinishTask(false)
 
 ## 10. 관련 문서
 

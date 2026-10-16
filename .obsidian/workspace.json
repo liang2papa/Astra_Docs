@@ -11,10 +11,14 @@
             "id": "372a096f3d712e5f",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "Wiki/01_일정 관리/일일 기록/2026/2026-10-15.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "새 탭"
+              "title": "2026-10-15"
             }
           }
         ]
@@ -185,8 +189,26 @@
       "bases:새 베이스 생성하기": false
     }
   },
-  "active": "c09ccfa4ccfed34c",
+  "active": "372a096f3d712e5f",
   "lastOpenFiles": [
+    "Wiki/01_일정 관리/2026년 12월 프로토타입 제작 계획.md",
+    "Wiki/01_일정 관리/일일 기록/2026/2026-10-15.md",
+    "Wiki/01_일정 관리/일일 기록/2026/2026-10-08.md",
+    "Wiki/01_일정 관리/일일 기록/2026/2026-09-30.md",
+    "Wiki/01_일정 관리/일일 기록/2026/2026-09-28.md",
+    "Wiki/01_일정 관리/일일 기록/2026/2026-09-25.md",
+    "Wiki/01_일정 관리/일일 기록/2026/2026-09-24.md",
+    "Wiki/01_일정 관리/일일 기록/2026/2026-09-23.md",
+    "Wiki/01_일정 관리/일일 기록/2026/2026-09-22.md",
+    "Wiki/01_일정 관리/일일 기록/2026/2026-09-21.md",
+    "Wiki/00_프로젝트 개요/프로젝트 목표.md",
+    "Wiki/01_일정 관리/로드맵.md",
+    "Wiki/01_일정 관리/01_일정 관리.md",
+    "Wiki/01_일정 관리/남은 이슈.md",
+    "Wiki/99_작업 규칙/99_작업 규칙.md",
+    "Wiki/07_QA_테스트/NPC 착지 후 현재 의도 복구 연결.md",
+    "Wiki/08_기술 위키_공통 가이드/Unreal/StateTree/NPC Context와 행동 연결 진단.md",
+    "Wiki/07_QA_테스트/NPC Idle 순찰·피격 방향 확인 연결.md",
     "무제",
     "무제.canvas",
     "2026-09-15.md",
@@ -195,25 +217,8 @@
     "무제 1.md",
     "무제.md",
     "README.md",
-    "Wiki/01_일정 관리/남은 이슈.md",
     "Wiki/01_일정 관리/해결된 이슈.md",
-    "Wiki/01_일정 관리/로드맵.md",
-    "Wiki/99_작업 규칙/99_작업 규칙.md",
     "Wiki/기획·설계 대응표.md",
-    "Wiki/02_게임 기획/객체 기획/Item.md",
-    "Wiki/08_기술 위키_공통 가이드/Unreal/Unreal 지식 목록.md",
-    "Wiki/08_기술 위키_공통 가이드/Unreal/UMG/HUD 값과 아이콘 표시.md",
-    "Wiki/08_기술 위키_공통 가이드/Unreal/UMG/패널과 자유 배치.md",
-    "Wiki/08_기술 위키_공통 가이드/Unreal/StateTree/StateTree Evaluator.md",
-    "Wiki/08_기술 위키_공통 가이드/Unreal/Gameplay Framework/PlayerCameraManager 참조 구성.md",
-    "Wiki/08_기술 위키_공통 가이드/Unreal/Assets/Soft Reference와 비동기 로딩.md",
-    "Wiki/08_기술 위키_공통 가이드/Unreal/Animation/Slot·AimOffset·IK 적용 순서.md",
-    "Wiki/08_기술 위키_공통 가이드/Programming/Architecture/Dependency Inversion.md",
-    "Wiki/02_게임 기획/02_게임 기획.md",
-    "Wiki/02_게임 기획/게임 객체 분류.md",
-    "Wiki/03_시스템 설계/게임 객체 분류.md",
-    "Wiki/03_시스템 설계/개발 규칙.md",
-    "Wiki/03_시스템 설계/작업 규칙.md",
     "Wiki/04_아트 및 애니메이션/애니메이션 설계",
     "Wiki/02_게임 기획/객체 기획",
     "원본 문서/NPC 행동 설계.xlsx",

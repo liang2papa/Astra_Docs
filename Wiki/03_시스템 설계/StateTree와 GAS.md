@@ -6,23 +6,24 @@
 
 StateTree와 GAS는 서로를 대체하지 않음
 
-| 시스템 | 책임 |
-|---|---|
-| StateTree Condition | 전이 후보가 현재 가능한지 빠르게 검사 |
-| StateTree Task | 상태 진입·틱·종료에 따른 실행과 Ability 활성화 요청 |
-| EntityStateMediator | 상·하체 이벤트 라우팅, 상태 충돌 정책, Ability 활성화 |
-| Gameplay Ability | 비용, 쿨다운, 차단, Commit, 실제 전투 행동, 취소·종료 |
-| ASC / GameplayTag | 공유 전투 상태와 Ability 수명 관리 |
+| 시스템                 | 책임                                   |
+| ------------------- | ------------------------------------ |
+| StateTree Condition | 전이 후보가 현재 가능한지 빠르게 검사                |
+| StateTree Task      | 상태 진입·틱·종료에 따른 실행과 Ability 활성화 요청    |
+| EntityStateMediator | 상·하체 이벤트 라우팅, 상태 충돌 정책, Ability 활성화  |
+| Gameplay Ability    | 비용, 쿨다운, 차단, Commit, 실제 전투 행동, 취소·종료 |
+| ASC / GameplayTag   | 공유 전투 상태와 Ability 수명 관리              |
 
-STC에서 모든 검사를 끝냈더라도 GA는 실행 시점에 탄약·사망·기절·비용 등 안전 검사를 다시 수행 필요 두 검사는 중복된 역할이 아니라 **전이 선택용 검사**와 **실행 권한 검사**.
+STC에서 모든 검사를 끝냈더라도 GA는 실행 시점에 탄약·사망·기절·비용 등 안전 검사 다시 수행
+두 검사는 중복된 역할이 아니라 **전이 선택용 검사**와 **실행 권한 검사**
 
-StateTree와 GA는 행동 주체인 [Entity](../02_%EA%B2%8C%EC%9E%84%20%EA%B8%B0%ED%9A%8D/%EA%B2%8C%EC%9E%84%20%EA%B0%9D%EC%B2%B4%20%EB%B6%84%EB%A5%98.md)의 행동 계층 `GA_Weapon*`과 무기 상체 StateTree도 Weapon Item이 소유하는 로직이 아니라 Entity가 장착 무기를 사용하는 행동을 표현 Weapon Item은 정적 정의, 인스턴스 탄약과 실제 실행 결과를 소유
+StateTree와 GA는 행동 주체인 [Entity](../02_%EA%B2%8C%EC%9E%84%20%EA%B8%B0%ED%9A%8D/%EA%B2%8C%EC%9E%84%20%EA%B0%9D%EC%B2%B4%20%EB%B6%84%EB%A5%98.md)의 행동 계층 무기 상체 StateTree도 Weapon Item이 소유하는 로직이 아니라 Entity가 장착 무기를 사용하는 행동을 표현 Weapon Item은 정적 정의, 인스턴스 탄약과 실제 실행 결과를 소유
 
 ## 2. StateTree 구성
 
 ### Base StateTree
 
-에셋: `Content/Astra/Player/StateTree/BaseStateTree/ST_PlayerBaseState.uasset`
+에셋: `Content/Astra/Entity/Player/StateTree/BaseStateTree/ST_PlayerBaseState.uasset`
 
 현재 에셋 경로는 Player 아래에 있지만 책임상 Humanoid Entity의 Locomotion 행동 NPC 인간형과 공유 가능한 수준이 되면 `Entity/Humanoid/StateTrees/Locomotion`으로 이동
 
@@ -43,7 +44,7 @@ StateTree와 GA는 행동 주체인 [Entity](../02_%EA%B2%8C%EC%9E%84%20%EA%B8%B
 
 ### Upper StateTree
 
-에셋: `Content/Astra/Player/StateTree/UpperStateTree/ST_UpperState.uasset`
+에셋: `Content/Astra/Entity/Player/StateTree/UpperStateTree/ST_UpperState.uasset`
 
 현재 에셋 경로는 Player 아래에 있지만 책임상 Humanoid Entity의 상체 행동 무기 외 상호작용과 스킬까지 확장할 수 있으므로 장기 분류명은 Weapon보다 `Actions` 또는 `UpperBody`를 사용
 
@@ -53,13 +54,15 @@ WeaponCarryState와 UpperAction을 하나의 트리에서 관리 무기를 들�
 - Drawing
 - Ready
 - Holstering
-- Fire
+- Attack
 - Aim
 - Reload
 
 ## 3. 의미 입력 파이프라인
 
 Controller는 입력을 직접 실행하지 않고 **의미 입력**을 `UEntityInputBufferComponent`에 기록 StateTree Condition이 확인하고 Task가 확정된 시점에 한 번 소비
+
+제어 명령 자체는 `IControllableEntity.HandleControlCommand` 단일 진입점으로 Pawn에 전달 — PlayerController와 AIController가 동일한 `EEntityControlCommand` 형식을 사용
 
 ### EntityInputBufferComponent
 
@@ -105,12 +108,12 @@ Controller는 입력을 직접 실행하지 않고 **의미 입력**을 `UEntity
 
 - State 진입 사실을 EventBus에 게시
 - Domain Component 함수 호출
-- Mediator에 Ability 활성화 요청 또는 `Activate Entity Ability By Tag`로 직접 활성화 요청
+- `Activate Entity Ability By Tag`로 GA 활성화 요청
 - 확정된 시점에 버퍼된 입력 소비
 - 지연 작업이 끝날 때 `Finish Task`
 - ExitState에서 중단·복구 처리
 
-## 5. 무기 발사 전체 경로
+## 5. 무기 공격 전체 경로
 
 ```mermaid
 sequenceDiagram
@@ -118,31 +121,30 @@ sequenceDiagram
     participant Character as PlayerCharacter
     participant Buffer as InputBuffer
     participant Upper as Upper StateTree
-    participant STC as STC (CanFire 등)
-    participant Task as STT (Consume Input + Activate Ability)
-    participant Mediator as StateMediator
+    participant STC as STC_CanAttack
+    participant Task as STT_Attack (Consume Input + Publish + Activate)
+    participant Bus as EventBus / Mediator
     participant ASC as Entity ASC
-    participant GA as GA_WeaponFire
-    participant Executor as Attack Executor
+    participant GA as GA_Attack
+    participant Handler as AttackSequence / AttackCommit Handler
 
-    Input->>Character: IA_Astra_Attack
+    Input->>Character: 공격 입력 (AttackStarted)
     Character->>Buffer: PushInputPressed(Input.Attack)
     Upper->>STC: 전이 후보 검사 (무기·상태·차단 Tag)
     STC-->>Upper: 통과
-    Upper->>Task: Fire 진입
+    Upper->>Task: Attack 진입
     Task->>Buffer: ConsumePressedInput(Input.Attack)
-    Task->>Mediator: Publish FireEntered (상태 진입 사실)
-    Mediator->>Upper: 상태 이벤트 라우팅
+    Task->>Bus: Publish FireEntered (상태 진입 사실)
     Task->>ASC: TryActivateAbilityByTag(Ability.Weapon.Fire)
     ASC->>GA: ActivateAbility
     GA->>ASC: 탄약·사망·기절·비용 재검사
-    GA->>Executor: FireEquippedWeapon
-    Executor->>Executor: Fire Montage + Weapon_FireCommit Notify
-    Executor-->>GA: 발사 완료·취소
+    GA->>Handler: 공격 Commit 요청
+    Handler->>Handler: 공격 Montage + Weapon_FireCommit Notify
+    Handler-->>GA: 발사 완료·취소
     GA->>ASC: EndAbility
 ```
 
-`FireEntered` 게시는 Ability를 켜는 함수가 아닙니다 상체 Fire 진입 사실을 Mediator에 알려 Sprint 취소 같은 교차 상태 정책을 작동시키는 이벤트 그 다음 `Activate Entity Ability By Tag`가 실제 GA를 활성화
+`FireEntered` 사건 게시는 Ability를 켜는 함수가 아닙니다 상체 Attack 진입 사실을 Mediator에 알려 Sprint 취소 같은 교차 상태 정책을 작동시키는 이벤트 그 다음 `Activate Entity Ability By Tag`가 실제 GA를 활성화
 
 ## 6. STT 기준 순서 — Activate Entity Ability By Tag
 
@@ -151,7 +153,7 @@ sequenceDiagram
 3. `EntityContext.StateEventBus` 유효성 확인
 4. `Publish Simple` — 상태 진입 사실 (`EEntityUpperStateEvent::FireEntered`)
 5. `EntityContext.AbilitySystem` 유효성 확인
-6. `Activate Entity Ability By Tag` — AbilityTag: `Ability.Weapon.Fire`
+6. `Activate Entity Ability By Tag` — AbilityTag: `Ability.Weapon.Fire` (GA_Attack 에셋이 소유)
 7. 반환값을 `Finish Task.Succeeded`에 연결
 
 StateTree에서 `Actor.PlayerContext` 또는 `Actor.EntityContext` 바인딩을 반드시 지정 Blueprint 변수에 값이 존재하는 것과 StateTree의 인스턴스 바인딩은 별개
@@ -165,7 +167,7 @@ UGameplayAbility
 ├─ UAstraEntityGameplayAbilityBase (C++, Abstract)
 │  └─ Entity 행동 GA (GA_Evade · GA_Sprint · GA_Jump 등)
 └─ UAstraWeaponGameplayAbilityBase (C++)
-   ├─ GA_WeaponFire
+   ├─ GA_Attack
    ├─ GA_WeaponReload
    └─ GA_WeaponAim
 ```
@@ -187,14 +189,14 @@ UGameplayAbility
 
 - Pawn 소유 Entity ASC에서 실행
 - `GetEntityAttributeValue` — 현재 Entity ASC의 런타임 Attribute 값 읽기
-- SoulEnergy 비용은 자신의 ASC가 아닌 조종 Player의 PlayerState ASC에서 확정
-- `CanPayPlayerSoulEnergyCost` / `CommitPlayerSoulEnergyCost` — Authority에서 확인과 차감을 한 경로에서 처리, 실패하면 Action 취소
-- `ResolveControllingPlayerState`로 현재 조종 PlayerState를 해석
+- GA의 일반 비용과 쿨다운은 GE Cost 경로 사용
+- SoulEnergy 비용은 `UEntitySoulEnergyComponent`의 `CanPay` / `CommitCost` 경계로 처리 — 수치 원본은 조종 Player의 PlayerState ASC
 
 ### UAstraWeaponGameplayAbilityBase
 
 - `InstancedPerActor`이며 `OnAvatarSet`에서 Avatar의 `IEntityContextProvider`를 통해 `EntityContext`를 캐시 Ability가 자신을 생성하면서 호출하는 것이 아니라 ASC가 Ability 지급 또는 Avatar 변경 과정에서 `OnAvatarSet`을 호출
-- 현재 Weapon Ability는 PlayerController나 PlayerCharacter의 구체 타입을 따라가며 카메라를 찾지 않고, EntityContext에 등록된 `PlayerCameraManager`를 통해 `StartAimCameraFOV`와 `StopAimCameraFOV`를 요청 다만 이 FOV 기능 때문에 `UAstraWeaponGameplayAbilityBase`는 아직 Player 의존성을 가집니다 Humanoid 공용 기반으로 옮기려면 카메라 정책을 분리하거나 인터페이스로 격리 필요 자세한 생명주기는 [PlayerCameraManager 참조 구성](../08_%EA%B8%B0%EC%88%A0%20%EC%9C%84%ED%82%A4_%EA%B3%B5%ED%86%B5%20%EA%B0%80%EC%9D%B4%EB%93%9C/Unreal/Gameplay%20Framework/PlayerCameraManager%20%EC%B0%B8%EC%A1%B0%20%EA%B5%AC%EC%84%B1.md)을 참고
+- `GetEntityContext` / `GetWeaponComponent` — 캐시가 유효하지 않으면 Avatar에서 다시 해석
+- 현재 Weapon Ability는 PlayerController나 PlayerCharacter의 구체 타입을 따라가며 침라를 찾지 않고, EntityContext에 등록된 `PlayerCameraManager`를 통해 `StartAimCameraFOV`와 `StopAimCameraFOV`를 요청 다만 이 FOV 기능 때문에 `UAstraWeaponGameplayAbilityBase`는 아직 Player 의존성을 가집니다 Humanoid 공용 기반으로 옮기려면 침라 정책을 분리하거나 인터페이스로 격리 필요 자세한 생명주기는 [PlayerCameraManager 참조 구성](../08_%EA%B8%B0%EC%88%A0%20%EC%9C%84%ED%82%A4_%EA%B3%B5%ED%86%B5%20%EA%B0%80%EC%9D%B4%EB%93%9C/Unreal/Gameplay%20Framework/PlayerCameraManager%20%EC%B0%B8%EC%A1%B0%20%EA%B5%AC%EC%84%B1.md)을 참고
 
 ## 8. Aim 구현 흐름
 
@@ -242,7 +244,7 @@ Input.Reload이 InputBuffer에 기록
 → Ability 종료와 Upper Ready 복귀
 ```
 
-탄창이 빈 상태에서 Fire 입력이 들어오면 자동 Reload 전환 경로를 사용 이 자동 전환은 PIE 회귀 검증 항목으로 남깁니다
+탄창이 빈 상태에서 공격 입력이 들어오면 자동 Reload 전환 — `STC_CanReload_AttackInputAndZeroAmmo` 조건이 UpperCommand(Reload) 이벤트 전이에서 검사해 빈 탄창 공격 입력을 Reload 상태로 본냄 이벤트 전이는 `bConsumeEventOnSelect`로 한 번만 소비
 
 ## 10. EndAbility와 CancelAbility
 
@@ -257,9 +259,11 @@ Ability가 즉시 한 발만 발사한다면 `Activate → Commit → Fire → E
 ### Ability
 
 - `Ability.Entity.Death` — Entity 사망 GA
-- `Ability.Weapon.Fire`
-- `Ability.Weapon.Aim`
-- `Ability.Weapon.Reload`
+- `Ability.Weapon.Fire` — GA_Attack 에셋이 소유
+- `Ability.Weapon.Aim` — GA_WeaponAim 에셋이 소유
+- `Ability.Weapon.Reload` — GA_WeaponReload 에셋이 소유
+
+무기 Ability 태그는 `AstraGameplayTags`에 등록하지 않고 각 GA 에셋의 AbilityTags가 소유
 
 ### Entity 상태
 
@@ -281,7 +285,6 @@ Ability가 즉시 한 발만 발사한다면 `Activate → Commit → Fire → E
 
 ### Entity 의미 입력 — Controller가 기록, StateTree가 조회·소비
 
-- `Input.Move` — 이동 축
 - `Input.Jump`
 - `Input.Sprint`
 - `Input.Evade`
@@ -308,10 +311,10 @@ Ability가 즉시 한 발만 발사한다면 `Activate → Commit → Fire → E
 
 태그당 하나씩 두지 않고 명령 태그 2개 + Payload 구조체로 전달
 
-- `StateTree.Event.UpperCommand` + `FUpperStateCommandPayload` (`EUpperStateCommand`: Fire, AimStarted, AimCompleted, Reload, Draw, Holster, ForceHolster, CancelAction, Disable)
+- `StateTree.Event.UpperCommand` + `FUpperStateCommandPayload` (`EUpperStateCommand`: AttackStarted, AimStarted, AimCompleted, Reload, Draw, Holster, ForceHolster, CancelAction, Disable)
 - `StateTree.Event.LocomotionCommand` + `FLocomotionStateCommandPayload` (`ELocomotionStateCommand`: CancelSprint, ToggleSprint, HitReaction, Death)
 
-상태 진입 사실은 Payload 없이 타입이 지정된 사건으로 게시 — `EEntityUpperStateEvent`(Fire·Aim·Reload·Ready 진입), `EEntityLocomotionStateEvent`(Sprint·Airborne·Traversal·Evade 진입)
+상태 진입 사실은 Payload 없이 타입이 지정된 사건으로 게시 — `EEntityUpperStateEvent`(FireEntered·Aim·Reload·Ready 진입), `EEntityLocomotionStateEvent`(Sprint·Airborne·Traversal·Evade 진입)
 
 ### 크로스 트리 상태 판별
 

@@ -21,6 +21,7 @@
 - [PlayerCameraManager 참조 구성](Gameplay%20Framework/PlayerCameraManager%20%EC%B0%B8%EC%A1%B0%20%EA%B5%AC%EC%84%B1.md)
 - [StateTree Evaluator](StateTree/StateTree%20Evaluator.md)
 - [Entity Context](StateTree/Entity%20Context.md)
+- [NPC Context와 행동 연결 진단](StateTree/NPC%20Context%EC%99%80%20%ED%96%89%EB%8F%99%20%EC%97%B0%EA%B2%B0%20%EC%A7%84%EB%8B%A8.md)
 
 ## 에셋·애니메이션
 
