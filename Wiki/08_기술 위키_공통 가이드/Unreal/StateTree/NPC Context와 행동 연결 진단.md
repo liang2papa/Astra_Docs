@@ -109,5 +109,5 @@ NPCBrain Idle
 ## 관련
 
 - [NPC 행동 설계](../../../03_%EC%8B%9C%EC%8A%A4%ED%85%9C%20%EC%84%A4%EA%B3%84/NPC%20%ED%96%89%EB%8F%99.md)
-- [NPC Idle 순찰·피격 방향 확인 연결](../../../07_QA_%ED%85%8C%EC%8A%A4%ED%8A%B8/NPC%20Idle%20%EC%88%9C%EC%B0%B0%C2%B7%ED%94%BC%EA%B2%A9%20%EB%B0%A9%ED%96%A5%20%ED%99%95%EC%9D%B8%20%EC%97%B0%EA%B2%B0.md)
+- [NPC 연결·검증 — 순찰과 피격 방향](../../../07_QA_테스트/NPC%20연결·검증.md#순찰과-피격-방향)
 - [Unreal 지식 목록](../Unreal%20%EC%A7%80%EC%8B%9D%20%EB%AA%A9%EB%A1%9D.md)

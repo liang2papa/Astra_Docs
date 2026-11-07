@@ -1,5 +1,7 @@
 # StateTree와 Gameplay Ability System
 
+> 2026-10-21 갱신. 추적·재장전 완료와 사망 전이 해결·우선권 상향 사용자 확인. 최신 자동 재장전은 사건 기반 AutoReload. 연사·반동 등 별도 잔여는 [현재 작업 상태](../01_일정%20관리/현재%20작업%20상태.md)와 [플레이어 연결 안내](../07_QA_테스트/플레이어%20연사·빈%20탄창%20재장전%20연결.md) 기준
+
 ## 설계 의도
 
 ## 1. 역할 분리
@@ -10,12 +12,15 @@ StateTree와 GAS는 서로를 대체하지 않음
 | ------------------- | ------------------------------------ |
 | StateTree Condition | 전이 후보가 현재 가능한지 빠르게 검사                |
 | StateTree Task      | 상태 진입·틱·종료에 따른 실행과 Ability 활성화 요청    |
-| EntityStateMediator | 상·하체 이벤트 라우팅, 상태 충돌 정책, Ability 활성화  |
-| Gameplay Ability    | 비용, 쿨다운, 차단, Commit, 실제 전투 행동, 취소·종료 |
+| EntityStateMediator | 상·하체 이벤트 라우팅, 상태 충돌 정책, Task의 Ability 요청 중계 |
+| Gameplay Ability    | 실행 시점 검사·비용·쿨다운, C++ 실행 요청, 결과·취소·종료 처리 |
 | ASC / GameplayTag   | 공유 전투 상태와 Ability 수명 관리              |
+| C++ 실행부          | 몽타주·물리·자원 변경, 완료 알림과 공통 자원 정리 |
 
 STC에서 모든 검사를 끝냈더라도 GA는 실행 시점에 탄약·사망·기절·비용 등 안전 검사 다시 수행
 두 검사는 중복된 역할이 아니라 **전이 선택용 검사**와 **실행 권한 검사**
+
+사망도 `Health 사실 → Mediator 명령 → Base Death Task → GA → EntityCharacter` 순서 적용. Mediator의 사망 GA 직접 활성화·연출 우회 실행 없음. Base는 제거 시점까지 Death 상태 유지. [공통 사망 연결](../07_QA_테스트/공통%20사망%20GA·몽타주·제거%20연결.md) 참조
 
 StateTree와 GA는 행동 주체인 [Entity](../02_%EA%B2%8C%EC%9E%84%20%EA%B8%B0%ED%9A%8D/%EA%B2%8C%EC%9E%84%20%EA%B0%9D%EC%B2%B4%20%EB%B6%84%EB%A5%98.md)의 행동 계층 무기 상체 StateTree도 Weapon Item이 소유하는 로직이 아니라 Entity가 장착 무기를 사용하는 행동을 표현 Weapon Item은 정적 정의, 인스턴스 탄약과 실제 실행 결과를 소유
 
@@ -23,7 +28,7 @@ StateTree와 GA는 행동 주체인 [Entity](../02_%EA%B2%8C%EC%9E%84%20%EA%B8%B
 
 ### Base StateTree
 
-에셋: `Content/Astra/Entity/Player/StateTree/BaseStateTree/ST_PlayerBaseState.uasset`
+에셋: `Content/Astra/Entity/Player/StateTree/ST_PlayerBaseState.uasset`
 
 현재 에셋 경로는 Player 아래에 있지만 책임상 Humanoid Entity의 Locomotion 행동 NPC 인간형과 공유 가능한 수준이 되면 `Entity/Humanoid/StateTrees/Locomotion`으로 이동
 
@@ -44,23 +49,24 @@ StateTree와 GA는 행동 주체인 [Entity](../02_%EA%B2%8C%EC%9E%84%20%EA%B8%B
 
 ### Upper StateTree
 
-에셋: `Content/Astra/Entity/Player/StateTree/UpperStateTree/ST_UpperState.uasset`
+에셋: `Content/Astra/Entity/Player/StateTree/ST_PlayerUpperState.uasset`
 
 현재 에셋 경로는 Player 아래에 있지만 책임상 Humanoid Entity의 상체 행동 무기 외 상호작용과 스킬까지 확장할 수 있으므로 장기 분류명은 Weapon보다 `Actions` 또는 `UpperBody`를 사용
 
 WeaponCarryState와 UpperAction을 하나의 트리에서 관리 무기를 들어야 공격할 수 있고, 상호작용·Sprint·Airborne·Traversal이 Carry와 Action에 동시에 영향을 주기 때문에 별도 트리 두 개로 나누지 않음
 
 - Holstered
-- Drawing
 - Ready
 - Holstering
 - Attack
 - Aim
 - Reload
 
+Aim 아래 Aim Ready·Aim Attack 자식 상태 구성. 현재 별도 Drawing 상태 없음. 수납 상태에서 Attack 진입 시 STT_Attack의 ExecuteDrawWeapon과 Carry Ready 대기로 처리. Root의 Draw 명령 전이는 비활성
+
 ## 3. 의미 입력 파이프라인
 
-Controller는 입력을 직접 실행하지 않고 **의미 입력**을 `UEntityInputBufferComponent`에 기록 StateTree Condition이 확인하고 Task가 확정된 시점에 한 번 소비
+Controller는 입력을 직접 실행하지 않고 **의미 입력**을 `UEntityInputBufferComponent`에 기록. 현재 무기 Attack·Aim·Reload는 EntityCharacter.ProcessBufferedWeaponInputs가 Pressed를 소비하고 Mediator를 통해 Upper 명령 이벤트로 전달. STT에서 같은 Pressed를 다시 소비하지 않음
 
 제어 명령 자체는 `IControllableEntity.HandleControlCommand` 단일 진입점으로 Pawn에 전달 — PlayerController와 AIController가 동일한 `EEntityControlCommand` 형식을 사용
 
@@ -88,7 +94,7 @@ Controller는 입력을 직접 실행하지 않고 **의미 입력**을 `UEntity
 
 ### Condition이 하는 일
 
-- 필요한 Context와 Component 유효성 검사
+- 바인딩된 Context와 Component를 사용한 전이 조건 검사
 - 장착 무기 여부
 - 현재 Base/Upper 상태
 - 사망·기절·Traversal 등 차단 상태
@@ -122,7 +128,7 @@ sequenceDiagram
     participant Buffer as InputBuffer
     participant Upper as Upper StateTree
     participant STC as STC_CanAttack
-    participant Task as STT_Attack (Consume Input + Publish + Activate)
+    participant Task as STT_Attack (Publish + Activate + Wait)
     participant Bus as EventBus / Mediator
     participant ASC as Entity ASC
     participant GA as GA_Attack
@@ -130,33 +136,43 @@ sequenceDiagram
 
     Input->>Character: 공격 입력 (AttackStarted)
     Character->>Buffer: PushInputPressed(Input.Attack)
+    Character->>Buffer: ProcessBufferedWeaponInputs에서 소비
+    Character->>Upper: Mediator를 통한 UpperCommand(AttackStarted)
     Upper->>STC: 전이 후보 검사 (무기·상태·차단 Tag)
     STC-->>Upper: 통과
     Upper->>Task: Attack 진입
-    Task->>Buffer: ConsumePressedInput(Input.Attack)
     Task->>Bus: Publish FireEntered (상태 진입 사실)
+    opt Carry Ready 아님
+        Task->>Handler: ExecuteDrawWeapon 후 Ready 대기
+    end
     Task->>ASC: TryActivateAbilityByTag(Ability.Weapon.Fire)
     ASC->>GA: ActivateAbility
-    GA->>ASC: 탄약·사망·기절·비용 재검사
-    GA->>Handler: 공격 Commit 요청
+    GA->>ASC: CommitAbility 결과 검사
+    GA->>Handler: WeaponComponent.FireEquippedWeapon
     Handler->>Handler: 공격 Montage + Weapon_FireCommit Notify
     Handler-->>GA: 발사 완료·취소
     GA->>ASC: EndAbility
 ```
+
+위 완료 대기 방식은 이번 Blueprint 수정 기준. 제공된 GA_Attack은 시작 성공 직후 EndAbility, STT_Attack은 Tick마다 활성화 요청하는 상태로 확인. 실제 적용 완료로 간주하지 않음
 
 `FireEntered` 사건 게시는 Ability를 켜는 함수가 아닙니다 상체 Attack 진입 사실을 Mediator에 알려 Sprint 취소 같은 교차 상태 정책을 작동시키는 이벤트 그 다음 `Activate Entity Ability By Tag`가 실제 GA를 활성화
 
 ## 6. STT 기준 순서 — Activate Entity Ability By Tag
 
 1. `Event EnterState`
-2. `Consume Buffered Entity Input` — 해당 입력 Tag의 Pressed/Released를 한 번 소비
-3. `EntityContext.StateEventBus` 유효성 확인
+2. C++에서 소비한 무기 입력을 다시 소비하지 않음. 무기 외 버퍼 직접 사용 Task의 소비 여부는 별도 결정
+3. 바인딩된 `EntityContext.StateEventBus` 사용
 4. `Publish Simple` — 상태 진입 사실 (`EEntityUpperStateEvent::FireEntered`)
-5. `EntityContext.AbilitySystem` 유효성 확인
-6. `Activate Entity Ability By Tag` — AbilityTag: `Ability.Weapon.Fire` (GA_Attack 에셋이 소유)
-7. 반환값을 `Finish Task.Succeeded`에 연결
+5. 바인딩된 `EntityContext.AbilitySystem` 사용
+6. `Try Activate Ability By Tag` — AbilityTag: `Ability.Weapon.Fire` (GA_Attack 에셋이 소유). Ready 도달 후 한 번 호출
+7. 활성화 false이면 FinishTask(false). true이면 실행 대기 후 실제 결과로 FinishTask. 활성화 성공을 공격 완료로 즉시 반환하지 않음
+
+STT_Attack의 Enter·Tick·Exit와 GA 완료 Delegate의 정확한 핀 연결은 위 연결 문서 기준
 
 StateTree에서 `Actor.PlayerContext` 또는 `Actor.EntityContext` 바인딩을 반드시 지정 Blueprint 변수에 값이 존재하는 것과 StateTree의 인스턴스 바인딩은 별개
+
+STT_EntityBase 자식은 부모의 actor·character·entitycontext·pawn 바인딩 참조 재사용. 필수 참조 누락은 구성 오류로 확인·수정. IsValid 분기로 실행 생략·오류 은폐 금지. STT_EntityDeath는 별도 캐스팅·참조 저장·ExitState 작업 없음
 
 ## 7. Ability 계층과 EntityContext
 
@@ -202,10 +218,10 @@ UGameplayAbility
 
 ```text
 IA_Astra_Aim.Started
-→ PlayerCharacter가 Input.Aim을 InputBuffer에 기록
+→ PlayerController가 Pawn에 AimStarted 전달
+→ EntityCharacter가 Input.Aim을 InputBuffer에 기록·소비하고 UpperCommand 전달
 → Upper StateTree의 STC_CanAim (무기·상태·차단 Tag)
 → STT_WeaponAim.EnterState
-→ Consume Buffered Entity Input(Input.Aim)
 → Publish Upper 상태 진입 사실 (EEntityUpperStateEvent::AimEntered)
 → Activate Entity Ability By Tag(Ability.Weapon.Aim)
 → GA_WeaponAim.ActivateAbility
@@ -233,18 +249,21 @@ STT_WeaponAim.ExitState
 
 ```text
 Input.Reload이 InputBuffer에 기록
+→ EntityCharacter.ProcessBufferedWeaponInputs가 소비하고 UpperCommand(Reload) 전달
 → Upper StateTree의 STC_CanReload
-→ STT_WeaponReload (입력 소비 + 상태 게시)
+→ STT_WeaponReload (필요 시 손 부착 + 상태 게시)
 → Activate Entity Ability By Tag(Ability.Weapon.Reload)
 → GA_WeaponReload
 → WeaponComponent.ExecuteReloadWeapon
 → Reload Montage
-→ Weapon_ReloadCommit Notify에서 탄약 반영
+→ 정상 Montage 종료에서 탄약 반영
 → Montage 완료 또는 CancelReloadWeapon
 → Ability 종료와 Upper Ready 복귀
 ```
 
-탄창이 빈 상태에서 공격 입력이 들어오면 자동 Reload 전환 — `STC_CanReload_AttackInputAndZeroAmmo` 조건이 UpperCommand(Reload) 이벤트 전이에서 검사해 빈 탄창 공격 입력을 Reload 상태로 본냄 이벤트 전이는 `bConsumeEventOnSelect`로 한 번만 소비
+자동 재장전: 활성 무기 장착·교체, 탄창 소진, 현재 무기와 호환되는 탄약 획득 사건에서 요청 생성. Upper 부모의 AutoReload 이벤트 AND ShouldAutoReload 조건으로 Reload 진입. Holstered·Ready의 탄창 OnTick 감시와 AttackStarted 기반 자동 Reload 전이 제거 기준. 수동 Reload 이벤트는 기존 CanReloadWeapon 검사
+
+두 판정 API인 ShouldAutoReload·ShouldReloadOnFireRequest도 CanReloadWeapon Facade를 사용하여 진행 중 발사·지속 공격·Action 검사와 실제 실행 조건 통일. ShouldAutoReload는 현재 WeaponInstance의 자동 요청 존재·탄창 정책·Sprint 상태도 검사. Sprint 진입 시 재장전 취소·요청 폐기, 종료 후 이전 요청 자동 재개 없음. GA_WeaponReload의 과거 실패 후 종료 미연결 진단과 최신 재장전 사용자 완료 확인 구분
 
 ## 10. EndAbility와 CancelAbility
 
@@ -252,7 +271,7 @@ Input.Reload이 InputBuffer에 기록
 - `CancelAbility`: 피격, 사망, Sprint, Airborne, Traversal 등 외부 사유로 중단할 때 사용
 - 취소 경로에서도 Montage·타이머·예약 입력·GameplayTag를 정리한 뒤 Ability 수명을 끝냅니다
 
-Ability가 즉시 한 발만 발사한다면 `Activate → Commit → Fire → EndAbility`가 기본 흐름 연사·충전·지속 조준은 Ability가 활성 상태로 남아 입력 해제 또는 취소를 기다립니다
+FireEquippedWeapon의 true는 몽타주 시작 수락. 탄 생성·완료를 뜻하지 않음. GA_Attack은 OnWeaponFireFinished까지 유지하는 연결이 기준. 실제 탄 생성은 Weapon_FireCommit, RapidFire 한 발 완료는 쿨다운 이후 후반 몽타주 정리 시점. 재장전 GA는 OnWeaponReloadFinished까지 유지
 
 ## 11. GameplayTag 기준
 

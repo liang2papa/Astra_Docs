@@ -65,13 +65,16 @@
 
 ### ITEM-006. 탄약이 0인 무기 장착 시 자동 장전
 
-- 상태: 미구현
+- 상태: 사건 기반 AutoReload C++ 반영, 재장전 사용자 완료 지정(2026-10-21)
 
 #### 현재 기록·검증 범위
 
-- Inventory에서 무기 장착이 확정된 뒤 장전 탄약이 0인지 확인한다.
-- 0이면 직접 탄약을 변경하지 않고 기존 Reload 요청 흐름으로 전달한다.
-- 발사 요청 시 빈 탄창 자동 재장전과 별개의 장착 편의 기능이다.
+- 활성 WeaponInstance 바인딩 완료 시 빈 탄창의 자동 재장전 요청 생성. 무기 획득·교체 공통 경로
+- 장전 탄수 양수→0, 현재 무기와 호환되는 탄약 획득 성공 사건도 같은 AutoReload 명령으로 전달
+- Upper 부모 이벤트 전이 → 기존 Reload Task·GA·ReloadHandler 사용. 탄창을 감시하는 OnTick 전이 없음
+- Sprint 진입 시 재장전 취소·기존 자동 요청 폐기. Sprint 종료 후 이전 요청 자동 재개 없음
+- 탄약 확정은 정상 몽타주 종료. 요청·GA 활성화 성공만으로 탄약 변경 없음
+- [현재 연결·정책](../../07_QA_테스트/플레이어%20연사·빈%20탄창%20재장전%20연결.md#2026-10-20-자동-재장전-요청과-sprint-우선순위)
 
 ### ITEM-007. WeaponInstance의 장전 탄약 소유 구조 변경
 
@@ -111,6 +114,33 @@
 - 원인: InitializeOption 입력을 텍스트에만 사용하고 EquipmentSlot 멤버에 저장하지 않음
 - 해결: InEquipmentSlot → Set EquipmentSlot → 표시 갱신
 - [동적 옵션 초기화](../Unreal/UMG/%EB%8F%99%EC%A0%81%20%EC%9C%84%EC%A0%AF%20%EC%83%9D%EC%84%B1%EA%B3%BC%20%EB%8D%B0%EC%9D%B4%ED%84%B0%20%EA%B0%B1%EC%8B%A0.md)
+## 무기 획득 중 탄종 태그 Assertion
+
+2026-10-19 확인 기록. 무기 애니메이션 안내에 섞여 있던 5.56mm 획득 오류를 이 절로 이동. 사용자 설정 단계 완료 보고 이후 동일 진단 재요구 없음
+
+- 로그: `Saved/Logs/Astra_SoulLink-backup-2026.10.19-05.15.09.log`, `RegisterWeaponAmmunition: AmmoTypeTag가 유효하지 않습니다`, 당시 ItemTransferComponent.cpp:416
+- 호출: WorldItemActor.HandlePickupOverlap → TryPickup → TryStoreExternalItemQuantity → RegisterWeaponAmmunition
+- 원인: 보관한 무기의 WeaponData.AmmoTypeTag.IsValid 검사 실패. 예비탄 부족·수납 소켓 오류와 구분
+- 당시 Config·DA_BaseRifleBullet에는 Item.Ammunition.556mm 확인. DA_BaseAR 패키지의 해당 문자열은 미확인으로 실제/미저장 값은 Editor 확인 대상
+- CSV Equipment.Weapon.BaseAR 행의 빈 AmmoTypeTag를 Item.Ammunition.556mm로 보완. C++ Assertion 제거·uasset 자동 변경 없음
+
+| 대상 | 연결 기준 |
+|---|---|
+| DA_BaseAR | bUsesAmmo=true, AmmoTypeTag=Item.Ammunition.556mm |
+| DA_BaseRifleBullet | 동일 5.56mm 태그 저장 |
+| DA_BasePistol·DA_BasePistolBullet | 기존 Item.Ammunition.9mm 유지 |
+
+CSV 수정은 로드된 DataAsset에 자동 반영되지 않음. 오류 확인만을 위한 전체 재임포트 필수 아님. 무기·탄약의 해당 필드 직접 확인·저장 후 획득 확인. 비치명적 오류 처리를 추가하려면 보관 전 검증·실패 시 이전 정합성까지 별도 검토
+
+```text
+무기·탄약 태그 저장 → 접촉 획득
+├─ 실패 → 새 로그의 실제 실패 에셋·위치 확인
+└─ 성공 → 호환 탄약 획득 → 재장전·발사
+교체/취소 → 이전 예약·탄약 확정 잔존 확인
+```
+
+10/21 재장전 사용자 완료 확인. 무기 교체 후 발사 잔여는 WPN-015와 분리 추적. 소켓·Transform 연결은 [무기 애니메이션](../../04_아트%20및%20애니메이션/애니메이션%20설계/무기.md#소켓과-무기별-보정) 참조
+
 ## 상태 목록·관련 문서
 
 - [남은 이슈](../../01_%EC%9D%BC%EC%A0%95%20%EA%B4%80%EB%A6%AC/%EB%82%A8%EC%9D%80%20%EC%9D%B4%EC%8A%88.md)

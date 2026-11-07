@@ -1,8 +1,8 @@
 # Astra SoulLink — 프로젝트 맵 (PROJECT MAP)
 
-> Kimi Work 작업 시 파일/클스 탐색을 줄이기 위한 경로 매핑 파일.
-> 구조가 바뀌면 이 파일을 업데이트하거나, "Map 업데이트해줘"라고 요청하면 된다.
-> 마지막 갱신: 2026-09-16 (소스 스캔 기준)
+> 파일·클래스 탐색을 줄이기 위한 경로 매핑 파일.
+> 경로 갱신: 2026-10-20 Entity/NPC/Animation 보완. 그 외 목록은 2026-09-16 스캔 기준이므로 사용 전 파일 존재 확인
+> 문서 진입점 정리: 2026-10-21. 현재 변경·연결·검증 상태는 [현재 작업 상태](Wiki/01_일정%20관리/현재%20작업%20상태.md)에서 먼저 확인
 
 ---
 
@@ -16,11 +16,11 @@
 | 솔루션 | `D:\FruitsfamilyStudio\Projects\Astra_Unreal\Astra_SoulLink.sln` |
 | C++ 소스 루트 | `D:\FruitsfamilyStudio\Projects\Astra_Unreal\Source` |
 
-## 2. 작업 규칙 (Kimi ↔ 외부 경로)
+## 2. 작업 재개와 규칙
 
-- 외부 경로 파일 **읽기**: 바로 가능.
-- 외부 경로 파일 **수정**: 복사 → 수정 → diff 확인 → 원래 경로로 반환. 원본은 확인 전 덮어쓰지 않음.
-- 수정 요청 시 클래스명만 말하면 이 맵으로 파일을 찾아 해당 클래스 부분만 수정.
+- [작업 규칙](Wiki/99_작업%20규칙/99_작업%20규칙.md)과 [현재 작업 상태](Wiki/01_일정%20관리/현재%20작업%20상태.md)를 먼저 읽고 관련 설계·QA 문서와 실제 소스를 대조.
+- C++ 수정은 변경안·영향 설명과 사용자 승인 범위에 맞춰 진행. Blueprint·StateTree·AnimBP·DataAsset 편집과 빌드·프로젝트 파일 재생성은 사용자 수행.
+- 기존 파일은 변경 부분을 확인해 보존하며 작업 전후 diff 검토. 이 경로 맵 자체를 수정·빌드 승인으로 사용하지 않음.
 
 ## 3. Unreal 프로젝트 주요 폴터
 
@@ -84,9 +84,19 @@
 | 클래스 | 헤더 |
 |---|---|
 | ControllableEntity | `Entity\Control\ControllableEntity.h` |
-| ControllableEntity | `Entity\Control\ControllableEntity.h` |
 | EntityInputBufferComponent | `Entity\Control\EntityInputBufferComponent.h` |
 | EntityInputStateTreeNodes | `Entity\Control\EntityInputStateTreeNodes.h` |
+| NPCBrainStateTreeNodes | `Entity\Control\NPCBrainStateTreeNodes.h` |
+
+### Entity — Character / NPC / Animation
+| 클래스 | 헤더 |
+|---|---|
+| EntityCharacter | `Entity\EntityCharacter.h` |
+| AstraNPCCharacter | `Entity\NPCCharacter.h` |
+| AstraNPCAIController | `Entity\NPCAIController.h` |
+| AstraHumanoidAnimInstance / AstraHumanoidAnimationData | `Entity\Animation\AstraHumanoidAnimInstance.h` |
+| PlayerContext | `Entity\PlayerContext.h` |
+| EntityLocomotionComponent | `Entity\EntityLocomotionComponent.h` |
 
 ### Entity — Data / Health / State
 | 클래스 | 헤더 |
@@ -193,5 +203,5 @@ PlatformingCharacter / PlatformingGameMode / PlatformingPlayerController (`Varia
 
 ### 사용 예시
 
-- "EntityStaminaComponent에 스태미나 재생 로직 추가해줘" → 맵으로 `Entity\Ability\EntityStaminaComponent.h/.cpp` 찾아 복사 → 수정 → diff 보고 → 원본 경로 반환
+- "EntityStaminaComponent에 스태미나 재생 로직 추가해줘" → 경로·현재 구현 확인 → 변경안·영향 설명 → 승인 범위의 소스 수정·diff 검토
 - "Combat 모드 AI 구조 설명해줘" → `Variant_Combat\AI\` 파일 읽고 설명
